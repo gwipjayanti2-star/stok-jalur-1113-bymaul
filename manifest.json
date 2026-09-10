@@ -1,10 +1,10 @@
 {
-"name": "stok jalur 1112 By Maul",
-"short_name": "StokST 1",
+"name": "stok jalur 1113 By Maul",
+"short_name": "StokST 2",
 "description": "Sistem Manajemen Stok Jalur GWIP - PT Mayora Indah",
 "start_url": "./index.html",
 "display": "standalone",
-"background_color": "#f0fdf4",
+"background_color": "#ffffff",
 "theme_color": "#3b82f6",
 "icons": [
 {
