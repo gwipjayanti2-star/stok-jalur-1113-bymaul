@@ -1,0 +1,1355 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistem Kartu Stock GWIP 1113 - PT Mayora Indah</title>
+    
+    <!-- PWA Meta Tags & Manifest -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#3b82f6">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="apple-touch-icon" href="https://www.image2url.com/r2/default/files/1785642175342-6f1d4abc-728d-4f28-8c4a-3b499c8b88c5.png">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f0fdf4;
+            background-image: radial-gradient(#e5e7eb 1px, transparent 1px);
+            background-size: 20px 20px;
+            color: #1f2937;
+            margin: 0;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
+        }
+        
+        .form-group { margin-bottom: 1.25rem; position: relative; }
+        .form-label {
+            display: block; font-size: 0.85rem; font-weight: 600;
+            color: #4b5563; margin-bottom: 0.35rem;
+        }
+        .form-input {
+            width: 100%; padding: 0.75rem 1rem; border: 1.5px solid #e5e7eb;
+            border-radius: 0.5rem; font-size: 0.875rem;
+            background-color: #f9fafb;
+            transition: all 0.3s ease;
+        }
+        .form-input:focus {
+            outline: none; border-color: #3b82f6; background-color: #ffffff;
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+        }
+        .form-input:disabled { background-color: #f3f4f6; cursor: not-allowed; color: #9ca3af; }
+
+        .autocomplete-list {
+            position: absolute; z-index: 50; width: 100%;
+            background-color: white; border: 1px solid #e5e7eb;
+            border-radius: 0.5rem; margin-top: 0.25rem;
+            max-height: 250px; overflow-y: auto;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+            display: none;
+            animation: slideDown 0.2s ease-out;
+        }
+        @keyframes slideDown { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .autocomplete-item {
+            padding: 0.75rem 1rem; font-size: 0.875rem; cursor: pointer;
+            border-bottom: 1px solid #f3f4f6; transition: all 0.2s ease;
+        }
+        .autocomplete-item:last-child { border-bottom: none; }
+        .autocomplete-item:hover {
+            background-color: #eff6ff; color: #1d4ed8; font-weight: 600; padding-left: 1.5rem;
+        }
+
+        .print-workspace {
+            flex: 1; overflow: auto; background-color: #374151;
+            display: flex; flex-direction: column; align-items: center; padding: 2rem;
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        .page-scale-wrapper {
+            width: 297mm; height: 210mm;
+            margin-bottom: 2rem;
+            transform-origin: top center;
+            flex-shrink: 0;
+            transition: transform 0.2s ease;
+        }
+
+        .page-container {
+            width: 297mm; height: 210mm; background: white;
+            padding: 4mm 8mm; 
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
+            display: flex; flex-direction: column; overflow: hidden;
+            border-radius: 4px;
+            font-family: "Times New Roman", Times, serif; 
+        }
+        
+        .page-container * {
+             font-family: "Times New Roman", Times, serif !important; 
+        }
+
+        @media (max-width: 1300px) { .page-scale-wrapper { transform: scale(0.85); margin-bottom: calc(2rem - 31.5mm); } }
+        @media (max-width: 1100px) { .page-scale-wrapper { transform: scale(0.7); margin-bottom: calc(2rem - 63mm); } }
+        @media (max-width: 850px) { .page-scale-wrapper { transform: scale(0.6); margin-bottom: calc(2rem - 84mm); } }
+        
+        /* Layout Mobile: Skala dibesarkan (tidak mikroskopis) dan diratakan ke kiri agar bisa di-scroll penuh ke kanan */
+        @media (max-width: 640px) { 
+            .print-workspace { align-items: flex-start; padding: 1rem; }
+            .page-scale-wrapper { transform: scale(0.5); transform-origin: top left; margin-bottom: calc(1rem - 105mm); } 
+        }
+        @media (max-width: 480px) { 
+            .page-scale-wrapper { transform: scale(0.45); transform-origin: top left; margin-bottom: calc(1rem - 115.5mm); } 
+        }
+        @media (max-width: 380px) { 
+            .page-scale-wrapper { transform: scale(0.4); transform-origin: top left; margin-bottom: calc(1rem - 126mm); } 
+        }
+
+        .doc-table { width: 100%; height: 100%; border-collapse: collapse; table-layout: fixed; border: 2px solid #111827; }
+        .doc-table th, .doc-table td {
+            border: 1px solid #374151; padding: 1px 2px; font-size: 9px;
+            vertical-align: middle; color: #111827; line-height: 1.1;
+        }
+        .doc-table th { text-align: center; font-weight: bold; background-color: #f3f4f6; border-bottom: 2px solid #111827; }
+        .doc-text-bold { font-weight: bold; }
+        .doc-text-center { text-align: center; }
+        .doc-text-left { text-align: left; }
+        .doc-align-top { vertical-align: top; }
+
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+        /* Hide scrollbar for nav tabs for better mobile experience */
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        .btn-modern {
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+        .btn-modern:active { transform: scale(0.95); }
+        .loader-spin { animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* Modern Toast Animations */
+        .toast-enter { animation: toastSlideIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+        .toast-leave { animation: toastSlideOut 0.4s ease-in forwards; }
+        @keyframes toastSlideIn { from { transform: translateX(120%) scale(0.9); opacity: 0; } to { transform: translateX(0) scale(1); opacity: 1; } }
+        @keyframes toastSlideOut { from { transform: translateX(0) scale(1); opacity: 1; } to { transform: translateX(120%) scale(0.9); opacity: 0; } }
+        
+        .toast-progress {
+            animation: shrink 3s linear forwards;
+            transform-origin: left;
+        }
+        @keyframes shrink {
+            from { transform: scaleX(1); }
+            to { transform: scaleX(0); }
+        }
+
+        @media print {
+            @page { size: A4 landscape; margin: 5mm; }
+            body { background: white; height: auto; overflow: visible; display: block; }
+            #login-overlay { display: none !important; }
+            #main-app { display: flex !important; flex-direction: column; height: auto; }
+            .no-print, header, .nav-tabs, #toast-container { display: none !important; }
+            .print-workspace { padding: 0; background-color: transparent; display: block; overflow: visible; }
+            
+            .page-scale-wrapper {
+                transform: none !important; 
+                width: 100%; 
+                height: auto;
+                margin-bottom: 0 !important; 
+                page-break-after: always;
+            }
+            .page-scale-wrapper:last-child {
+                page-break-after: auto;
+            }
+            .page-container {
+                margin: 0; padding: 0mm 5mm; width: 100%; min-height: 100%;
+                box-shadow: none; border-radius: 0; page-break-inside: avoid;
+            }
+            * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="global-loader" class="fixed inset-0 bg-white/90 backdrop-blur-sm z-[200] hidden items-center justify-center transition-opacity duration-300">
+        <div class="flex flex-col items-center">
+            <div class="w-12 h-12 border-4 border-blue-200 border-t-blue-600 rounded-full loader-spin mb-3"></div>
+            <p class="font-semibold text-blue-800 animate-pulse text-lg">Memuat Data Sistem...</p>
+            <p class="text-xs text-blue-500 mt-2">Mohon tunggu sebentar</p>
+        </div>
+    </div>
+
+    <div id="login-overlay" class="fixed inset-0 bg-slate-900 flex items-center justify-center z-[100] transition-opacity duration-500">
+        <div class="absolute top-0 left-0 w-64 h-64 bg-blue-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20"></div>
+        <div class="absolute top-0 right-0 w-64 h-64 bg-green-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20"></div>
+        
+        <div class="glass-panel p-8 rounded-2xl w-full max-w-md transform transition-all relative z-10 mx-4">
+            <div class="text-center mb-8">
+                <div class="bg-white p-3 rounded-2xl shadow-sm inline-block mb-4">
+                    <img src="https://www.image2url.com/r2/default/files/1785642175342-6f1d4abc-728d-4f28-8c4a-3b499c8b88c5.png" alt="Mayora Logo" class="w-16 mx-auto">
+                </div>
+                <h2 class="text-2xl font-bold text-gray-800 tracking-tight">GWIP System</h2>
+                <p class="text-gray-500 text-sm mt-1">Divisi Proses Biscuit - Jayanti 2</p>
+            </div>
+            
+            <form id="login-form" onsubmit="handleLogin(event)">
+                <div class="form-group mb-5">
+                    <label class="form-label" for="username">Username</label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                            <i class="fas fa-user text-gray-400"></i>
+                        </div>
+                        <input class="form-input pl-11" id="username" type="text" placeholder="Masukkan username" required autocomplete="off">
+                    </div>
+                </div>
+                <div class="form-group mb-6">
+                    <label class="form-label" for="password">Password</label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                            <i class="fas fa-lock text-gray-400"></i>
+                        </div>
+                        <input class="form-input pl-11" id="password" type="password" placeholder="••••••••" required>
+                    </div>
+                    <p id="login-error" class="text-red-500 text-xs italic mt-2 hidden font-medium"><i class="fas fa-exclamation-triangle mr-1"></i> Username atau password salah!</p>
+                </div>
+                <button id="login-btn" class="btn-modern bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 w-full text-white font-semibold py-3 px-4 rounded-xl shadow-lg shadow-blue-500/30 flex justify-center items-center" type="submit">
+                    Masuk Aplikasi
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <div id="main-app" class="hidden h-full w-full flex-col bg-[#f8fafc]">
+        
+        <header class="bg-white border-b border-gray-200 shadow-sm no-print shrink-0 relative z-20">
+            <div class="flex items-center justify-between max-w-7xl mx-auto px-4 py-3">
+                <div class="flex items-center gap-3">
+                    <div class="bg-blue-50 p-1.5 rounded-lg border border-blue-100">
+                        <img src="https://www.image2url.com/r2/default/files/1785642175342-6f1d4abc-728d-4f28-8c4a-3b499c8b88c5.png" alt="Logo" class="w-7 h-7 object-contain">
+                    </div>
+                    <div>
+                        <h1 class="font-bold text-gray-800 text-lg leading-tight hidden sm:block">GWIP Connect 1113</h1>
+                        <h1 class="font-bold text-gray-800 text-lg leading-tight sm:hidden">GWIP</h1>
+                        <p class="text-[10px] text-gray-500 font-medium uppercase tracking-wider hidden sm:block">Sistem Manajemen Stok Jalur</p>
+                    </div>
+                </div>
+                
+                <div class="flex items-center gap-2 sm:gap-3">
+                    <div class="hidden md:flex flex-col items-end border-r border-gray-200 pr-4 mr-1">
+                        <span id="header-user-info" class="text-sm font-semibold text-gray-700">PT. Mayora Indah</span>
+                        <span id="header-sync-status" class="text-[10px] text-green-600 font-bold flex items-center transition-colors duration-300">
+                            <span class="w-2 h-2 rounded-full bg-green-500 mr-1 shadow-[0_0_5px_rgba(34,197,94,0.5)]"></span> Online
+                        </span>
+                    </div>
+                    
+                    <!-- Tombol Sinkronisasi Modern (Icon Only) -->
+                    <button id="refresh-btn" onclick="refreshData()" title="Sinkronasi Data" class="btn-modern w-10 h-10 flex items-center justify-center bg-white border border-gray-200 text-blue-600 hover:bg-blue-50 hover:border-blue-300 hover:text-blue-700 rounded-xl shadow-sm transition-all focus:ring-2 focus:ring-blue-500/20 group">
+                        <i id="refresh-icon" class="fas fa-sync-alt text-lg group-hover:rotate-180 transition-transform duration-500"></i>
+                    </button>
+                    
+                    <!-- Tombol Keluar Modern (Icon Only) -->
+                    <button onclick="logout()" title="Keluar Aplikasi" class="btn-modern w-10 h-10 flex items-center justify-center bg-white border border-gray-200 text-red-500 hover:bg-red-50 hover:border-red-300 hover:text-red-600 rounded-xl shadow-sm transition-all focus:ring-2 focus:ring-red-500/20 group">
+                        <i class="fas fa-power-off text-lg group-hover:scale-110 transition-transform duration-300"></i>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <div class="bg-white border-b border-gray-200 no-print nav-tabs z-10 shrink-0">
+            <div class="max-w-7xl mx-auto flex overflow-x-auto px-4 gap-2 pt-2 hide-scrollbar">
+                <button onclick="switchTab('in')" id="tab-btn-in" class="px-5 py-3 font-semibold text-sm border-b-2 border-blue-600 text-blue-700 flex items-center whitespace-nowrap rounded-t-lg bg-blue-50/50 transition-colors">
+                    <div class="w-6 h-6 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center mr-2"><i class="fas fa-arrow-down text-xs"></i></div> Kedatangan
+                </button>
+                <button onclick="switchTab('out')" id="tab-btn-out" class="px-5 py-3 font-semibold text-sm border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-50 flex items-center whitespace-nowrap rounded-t-lg transition-colors">
+                    <div class="w-6 h-6 rounded-full bg-gray-100 text-gray-500 flex items-center justify-center mr-2 transition-colors"><i class="fas fa-arrow-up text-xs"></i></div> Pengambilan
+                </button>
+                <button onclick="switchTab('print')" id="tab-btn-print" class="px-5 py-3 font-semibold text-sm border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-50 flex items-center whitespace-nowrap rounded-t-lg transition-colors">
+                    <div class="w-6 h-6 rounded-full bg-gray-100 text-gray-500 flex items-center justify-center mr-2 transition-colors"><i class="fas fa-print text-xs"></i></div> Cetak Dokumen
+                </button>
+            </div>
+        </div>
+
+        <main class="flex-1 overflow-hidden relative">
+            
+            <div id="panel-in" class="h-full overflow-y-auto p-3 sm:p-6 max-w-5xl mx-auto transition-opacity duration-200">
+                <div class="glass-panel rounded-2xl p-5 sm:p-8 relative overflow-hidden">
+                    <div class="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-blue-400 to-green-400"></div>
+                    
+                    <div class="mb-8 flex items-center gap-4">
+                        <div class="w-12 h-12 rounded-xl bg-blue-100 flex items-center justify-center text-blue-600 text-xl shadow-inner shrink-0">
+                            <i class="fas fa-box-open"></i>
+                        </div>
+                        <div>
+                            <h2 class="text-xl sm:text-2xl font-bold text-gray-800">Form Kedatangan Material</h2>
+                            <p class="text-gray-500 text-xs sm:text-sm mt-1">Sistem tersinkronisasi cepat tanpa lag.</p>
+                        </div>
+                    </div>
+
+                    <div class="bg-blue-50/50 p-4 sm:p-5 rounded-xl border border-blue-100 mb-8 shadow-sm">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+                            <div class="form-group mb-0 relative">
+                                <label class="form-label text-blue-800"><i class="fas fa-search mr-1"></i> Cari Material</label>
+                                <div class="relative group">
+                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-blue-400 group-focus-within:text-blue-600 transition-colors"><i class="fas fa-search"></i></div>
+                                    <input type="text" id="in-material-display" class="form-input pl-10 pr-10 border-blue-200 focus:border-blue-500 focus:ring-blue-500 bg-white shadow-sm font-semibold text-gray-700" placeholder="Ketik nama material..." autocomplete="off">
+                                    <input type="hidden" id="in-material-value" required>
+                                    
+                                    <button type="button" onclick="clearInMaterial()" id="btn-clear-in-mat" class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-red-500 hidden transition-colors cursor-pointer" title="Ganti Material">
+                                        <i class="fas fa-times-circle text-lg"></i>
+                                    </button>
+
+                                    <ul id="in-material-list" class="autocomplete-list"></ul>
+                                </div>
+                            </div>
+                            <div class="form-group mb-0">
+                                <label class="form-label text-gray-600">Kode Barang (Otomatis)</label>
+                                <div class="relative">
+                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400"><i class="fas fa-barcode"></i></div>
+                                    <input type="text" id="in-kode" class="form-input pl-10 bg-gray-100 text-gray-600 font-mono font-bold border-gray-200 shadow-inner" disabled placeholder="Pilih material terlebih dahulu">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <form id="form-kedatangan" onsubmit="submitKedatangan(event)" class="opacity-50 pointer-events-none transition-all duration-300 transform translate-y-4">
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-5 sm:gap-6">
+                            <div class="form-group">
+                                <label class="form-label">Tanggal Kedatangan</label>
+                                <input type="date" id="in-tgl" class="form-input shadow-sm" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">No. Batch</label>
+                                <input type="text" id="in-batch" class="form-input shadow-sm font-mono uppercase font-semibold text-blue-700 focus:text-blue-800" required placeholder="Contoh: BATCH01">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Tanggal Expired</label>
+                                <input type="date" id="in-exp" class="form-input shadow-sm" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">Jumlah (Qty)</label>
+                                <div class="relative">
+                                    <input type="number" id="in-qty" class="form-input shadow-sm pl-4 pr-12 font-bold text-lg" required min="0.01" step="0.01" placeholder="0.00">
+                                    <div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none text-gray-400 font-semibold">KG</div>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group md:col-span-2">
+                                <label class="form-label">Supplier / Pemasok</label>
+                                <div class="relative group">
+                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400 group-focus-within:text-blue-500"><i class="fas fa-truck"></i></div>
+                                    <input type="text" id="in-supplier-display" class="form-input shadow-sm pl-10" placeholder="Pilih atau ketik supplier baru..." autocomplete="off" required>
+                                    <input type="hidden" id="in-supplier-value">
+                                    <ul id="in-supplier-list" class="autocomplete-list"></ul>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group md:col-span-3">
+                                <label class="form-label">Keterangan Tambahan (Opsional)</label>
+                                <div class="relative">
+                                    <div class="absolute inset-y-0 left-0 pl-3 pt-3 pointer-events-none text-gray-400"><i class="fas fa-comment-alt"></i></div>
+                                    <input type="text" id="in-ket" class="form-input shadow-sm pl-10" placeholder="Catatan khusus, plat mobil, dll">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mt-8 flex justify-end w-full gap-3 pt-4 border-t border-gray-100 flex-wrap sm:flex-nowrap">
+                            <button type="button" onclick="resetFormKedatangan()" class="btn-modern w-full sm:w-auto px-6 py-2.5 text-gray-600 bg-white border border-gray-300 hover:bg-gray-50 rounded-xl font-medium shadow-sm flex items-center justify-center">
+                                <i class="fas fa-undo mr-2 text-gray-400"></i> Reset
+                            </button>
+                            <button id="btn-submit-in" type="submit" class="btn-modern w-full sm:w-auto px-8 py-2.5 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-bold rounded-xl shadow-lg shadow-blue-500/30 flex items-center justify-center transition-all">
+                                <i class="fas fa-bolt mr-2 text-yellow-300"></i> Simpan Cepat
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div id="panel-out" class="hidden h-full overflow-y-auto p-3 sm:p-6 max-w-5xl mx-auto transition-opacity duration-200">
+                <div class="glass-panel rounded-2xl p-5 sm:p-8 relative overflow-hidden">
+                    <div class="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-orange-400 to-red-500"></div>
+                    
+                    <div class="mb-8 flex items-center gap-4">
+                        <div class="w-12 h-12 rounded-xl bg-orange-100 flex items-center justify-center text-orange-600 text-xl shadow-inner shrink-0">
+                            <i class="fas fa-dolly"></i>
+                        </div>
+                        <div>
+                            <h2 class="text-xl sm:text-2xl font-bold text-gray-800">Form Pengambilan Material</h2>
+                            <p class="text-gray-500 text-xs sm:text-sm mt-1">Pemotongan stok langsung ter-update di layar.</p>
+                        </div>
+                    </div>
+
+                    <div class="bg-orange-50/50 p-4 sm:p-5 rounded-xl border border-orange-100 mb-8 shadow-sm">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+                            <div class="form-group mb-0">
+                                <label class="form-label text-orange-800"><i class="fas fa-search mr-1"></i> 1. Cari Material</label>
+                                <div class="relative group">
+                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-orange-400 group-focus-within:text-orange-600"><i class="fas fa-search"></i></div>
+                                    <input type="text" id="out-material-display" class="form-input pl-10 pr-10 border-orange-200 focus:border-orange-500 focus:ring-orange-500 bg-white shadow-sm font-semibold text-gray-700" placeholder="Ketik nama material..." autocomplete="off">
+                                    <input type="hidden" id="out-material-value">
+                                    
+                                    <button type="button" onclick="clearOutMaterial()" id="btn-clear-out-mat" class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-red-500 hidden transition-colors cursor-pointer" title="Ganti Material">
+                                        <i class="fas fa-times-circle text-lg"></i>
+                                    </button>
+
+                                    <ul id="out-material-list" class="autocomplete-list"></ul>
+                                </div>
+                            </div>
+                            <div class="form-group mb-0">
+                                <label class="form-label text-orange-800"><i class="fas fa-boxes mr-1"></i> 2. Pilih Batch (Otomatis FIFO)</label>
+                                <div class="relative">
+                                    <select id="out-batch" class="form-input shadow-sm bg-white border-orange-200 focus:border-orange-500 focus:ring-orange-500 font-medium" required disabled onchange="onOutBatchChange()">
+                                        <option value="">-- Menunggu Material --</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="out-stock-info" class="mt-4 hidden animate-[slideDown_0.3s_ease-out]">
+                            <div class="inline-flex items-center bg-white px-4 py-2 rounded-lg border border-orange-200 shadow-sm">
+                                <span class="text-sm font-semibold text-gray-600 mr-3">Sisa Stok Batch ini:</span>
+                                <span class="bg-orange-100 text-orange-700 px-3 py-1 rounded text-lg font-bold font-mono tracking-wider"><span id="out-sisa-label">0</span> <span class="text-sm">KG</span></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <form id="form-pengambilan" onsubmit="submitPengambilan(event)" class="opacity-50 pointer-events-none transition-all duration-300 transform translate-y-4">
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-5 sm:gap-6 bg-gray-50 p-4 sm:p-6 rounded-xl border border-gray-100">
+                            
+                            <div class="form-group mb-0">
+                                <label class="form-label">Tanggal Pemakaian</label>
+                                <input type="date" id="out-tgl" class="form-input shadow-sm bg-white" required>
+                            </div>
+                            
+                            <div class="form-group mb-0">
+                                <label class="form-label">Shift Kerja</label>
+                                <div class="relative">
+                                    <select id="out-shift-select" class="form-input shadow-sm bg-white appearance-none" required>
+                                        <option value="" disabled selected>-- Pilih Shift --</option>
+                                        <option value="1">Shift 1 (Pagi)</option>
+                                        <option value="2">Shift 2 (Sore)</option>
+                                        <option value="3">Shift 3 (Malam)</option>
+                                    </select>
+                                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
+                                        <i class="fas fa-chevron-down text-sm"></i>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group mb-0">
+                                <label class="form-label text-red-600 font-bold">Jumlah Diambil</label>
+                                <div class="relative">
+                                    <input type="number" id="out-qty" class="form-input shadow-sm pl-4 pr-12 font-bold text-xl text-red-600 border-red-200 focus:border-red-500 focus:ring-red-500" required min="0.01" step="0.01" placeholder="0.00">
+                                    <div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none text-red-400 font-semibold">KG</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-8 flex justify-end w-full gap-3">
+                            <button id="btn-submit-out" type="submit" class="btn-modern w-full sm:w-auto justify-center px-8 py-3 bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 text-white font-bold rounded-xl shadow-lg shadow-red-500/30 flex items-center text-lg transition-all">
+                                <i class="fas fa-bolt mr-2 text-yellow-300"></i> Potong Cepat
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div id="panel-print" class="hidden h-full flex flex-col bg-gray-200 transition-opacity duration-200">
+                <div class="bg-white p-4 border-b shadow-sm no-print flex flex-wrap items-end gap-4 shrink-0 z-10 relative">
+                    <div class="w-full md:w-1/3">
+                        <label class="form-label"><i class="fas fa-filter mr-1 text-gray-400"></i> Pilih Material</label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400"><i class="fas fa-search"></i></div>
+                            <input type="text" id="print-material-display" class="form-input pl-10 pr-10 shadow-sm" placeholder="Ketik nama material..." autocomplete="off">
+                            <input type="hidden" id="print-material-value">
+                            
+                            <button type="button" onclick="clearPrintMaterial()" id="btn-clear-print-mat" class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-red-500 hidden transition-colors cursor-pointer" title="Ganti Material">
+                                <i class="fas fa-times-circle text-lg"></i>
+                            </button>
+
+                            <ul id="print-material-list" class="autocomplete-list"></ul>
+                        </div>
+                    </div>
+                    <div class="w-full md:w-1/4">
+                        <label class="form-label"><i class="fas fa-calendar-alt mr-1 text-gray-400"></i> Bulan Periode</label>
+                        <input type="month" id="print-bulan" class="form-input shadow-sm bg-white" onchange="renderPrintPreview()">
+                    </div>
+                    <div class="flex-1 flex justify-end w-full md:w-auto mt-2 md:mt-0">
+                        <button onclick="window.print()" id="btn-print" disabled class="btn-modern px-6 py-2.5 w-full md:w-auto justify-center bg-gray-800 disabled:bg-gray-300 disabled:text-gray-500 disabled:cursor-not-allowed hover:bg-black text-white font-bold rounded-lg shadow transition flex items-center">
+                            <i class="fas fa-print mr-2"></i> Cetak Dokumen
+                        </button>
+                    </div>
+                </div>
+
+                <div id="print-workspace" class="print-workspace">
+                    <!-- Pages generated via JS -->
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Container untuk Modern Toast Notification -->
+    <div id="toast-container" class="fixed top-5 right-5 sm:right-6 z-[300] flex flex-col gap-3 pointer-events-none"></div>
+
+    <script>
+        // MASUKKAN URL DEPLOYMENT WEB APP GOOGLE APPS SCRIPT ANDA DI SINI
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx-4CPwFw8fh6o95sOdhesKaNMnRG19clBZq55bSIrpa8m7I2_2_j8_tCqF3LRbekGp2w/exec'; 
+
+        let dbMaterials = [];
+        let stateBatches = [];
+
+        function formatTgl(dateStr) {
+            if(!dateStr) return '';
+            const [y, m, d] = dateStr.split('-');
+            return `${d}/${m}/${y.substring(2)}`;
+        }
+
+        // Helper function to detect and fix Google Sheets auto-date formatting on shifts
+        function formatShiftDisplay(rawShift) {
+            if (!rawShift) return '';
+            let str = String(rawShift).trim();
+            
+            // Check if Google Sheets converted the shift text into a full ISO Date string 
+            if (str.length > 20 && (str.includes('GMT') || str.includes('T00:00:00'))) {
+                let d = new Date(str);
+                if (!isNaN(d.getTime())) {
+                    let day = String(d.getDate()).padStart(2, '0');
+                    let shift = d.getMonth() + 1; 
+                    return `${day}/S${shift}`;
+                }
+            }
+            
+            // Check for format "DD/S" or "DD/S1"
+            if (str.includes('/')) {
+                let parts = str.split('/');
+                let day = parts[0].padStart(2, '0');
+                let shift = parts[1];
+                if (!shift.toUpperCase().startsWith('S')) {
+                    shift = 'S' + shift;
+                }
+                return `${day}/${shift.toUpperCase()}`;
+            }
+            
+            return str;
+        }
+
+        function toggleClearBtn(inputId, btnId) {
+            const input = document.getElementById(inputId);
+            const btn = document.getElementById(btnId);
+            if(input && btn) {
+                if(input.value.trim() !== '') {
+                    btn.classList.remove('hidden');
+                } else {
+                    btn.classList.add('hidden');
+                }
+            }
+        }
+
+        function clearInMaterial() {
+            const display = document.getElementById('in-material-display');
+            display.value = '';
+            document.getElementById('in-material-value').value = '';
+            handleMaterialInChange(''); 
+            toggleClearBtn('in-material-display', 'btn-clear-in-mat');
+            display.focus(); 
+        }
+
+        function clearOutMaterial() {
+            const display = document.getElementById('out-material-display');
+            display.value = '';
+            document.getElementById('out-material-value').value = '';
+            handleMaterialOutChange(''); 
+            toggleClearBtn('out-material-display', 'btn-clear-out-mat');
+            display.focus();
+        }
+
+        function clearPrintMaterial() {
+            const display = document.getElementById('print-material-display');
+            display.value = '';
+            document.getElementById('print-material-value').value = '';
+            renderPrintPreview(); 
+            toggleClearBtn('print-material-display', 'btn-clear-print-mat');
+            display.focus();
+        }
+
+        function setupAutocomplete(inputId, hiddenId, listId, dataSource, isSupplier = false, onChangeCallback = null) {
+            const input = document.getElementById(inputId);
+            const hidden = document.getElementById(hiddenId);
+            const list = document.getElementById(listId);
+
+            if (!input || !hidden || !list) return;
+
+            if (input.dataset.isSetup === 'true') return;
+            input.dataset.isSetup = 'true';
+
+            if (!list.dataset.hasListener) {
+                list.dataset.hasListener = 'true';
+                const handleSelection = (e) => {
+                    const li = e.target.closest('.autocomplete-item');
+                    if (!li) return;
+                    e.preventDefault(); 
+                    
+                    input.value = li.dataset.name;
+                    hidden.value = li.dataset.id;
+                    list.style.display = 'none';
+
+                    if (inputId === 'in-material-display') toggleClearBtn(inputId, 'btn-clear-in-mat');
+                    if (inputId === 'out-material-display') toggleClearBtn(inputId, 'btn-clear-out-mat');
+                    if (inputId === 'print-material-display') toggleClearBtn(inputId, 'btn-clear-print-mat');
+
+                    if(onChangeCallback) onChangeCallback(hidden.value);
+                };
+                list.addEventListener('mousedown', handleSelection);
+                list.addEventListener('touchstart', handleSelection, { passive: false });
+            }
+
+            function renderOptions(filter) {
+                const lowerFilter = (filter || '').toLowerCase();
+                const currentData = dataSource || []; 
+                
+                let filteredData;
+                if(isSupplier) {
+                    filteredData = currentData.filter(item => item.toLowerCase().includes(lowerFilter));
+                } else {
+                    filteredData = currentData.filter(item => item.name.toLowerCase().includes(lowerFilter));
+                }
+
+                if (filteredData.length === 0) {
+                    list.innerHTML = `<li class="p-3 text-gray-400 text-sm italic text-center">${isSupplier ? 'Tekan enter untuk tambah baru' : 'Material tidak ditemukan'}</li>`;
+                    return;
+                }
+
+                const displayData = filteredData.slice(0, 50);
+                let listHtml = '';
+                
+                displayData.forEach(item => {
+                    const name = isSupplier ? item : item.name;
+                    const id = isSupplier ? item : item.id;
+                    const inner = isSupplier ? `<i class="fas fa-building text-gray-400 mr-2"></i>${item}` : `<span class="font-semibold text-gray-700">${item.name}</span> <br><span class="text-xs text-gray-400 font-mono">${item.code}</span>`;
+                    listHtml += `<li class="autocomplete-item" data-name="${name}" data-id="${id}">${inner}</li>`;
+                });
+                
+                if(filteredData.length > 50) {
+                     listHtml += `<li class="p-2 text-gray-400 text-xs italic text-center border-t bg-gray-50">+ ${filteredData.length - 50} item lainnya. Ketik untuk memfilter.</li>`;
+                }
+                list.innerHTML = listHtml;
+            }
+
+            const openDropdown = () => { renderOptions(input.value); list.style.display = 'block'; };
+            input.addEventListener('focus', openDropdown);
+            input.addEventListener('click', openDropdown);
+            
+            input.addEventListener('input', (e) => {
+                const val = e.target.value;
+                renderOptions(val);
+                list.style.display = 'block';
+                
+                if (isSupplier) { 
+                    hidden.value = val; 
+                } else { 
+                    const exactMatch = (dataSource || []).find(item => item.name.toLowerCase() === val.toLowerCase());
+                    if (exactMatch) {
+                        hidden.value = exactMatch.id;
+                        if(onChangeCallback) onChangeCallback(exactMatch.id);
+                    } else {
+                        hidden.value = ''; 
+                        if(onChangeCallback) onChangeCallback(''); 
+                    }
+                }
+            });
+            
+            input.addEventListener('blur', () => {
+                setTimeout(() => {
+                    list.style.display = 'none';
+                    if(!isSupplier && !hidden.value) {
+                        input.value = ''; 
+                        if (inputId === 'in-material-display') toggleClearBtn(inputId, 'btn-clear-in-mat');
+                        if (inputId === 'out-material-display') toggleClearBtn(inputId, 'btn-clear-out-mat');
+                        if (inputId === 'print-material-display') toggleClearBtn(inputId, 'btn-clear-print-mat');
+                    }
+                }, 200); 
+            });
+        }
+
+        function setupAllAutocompletes() {
+            setupAutocomplete('in-material-display', 'in-material-value', 'in-material-list', dbMaterials, false, handleMaterialInChange);
+            setupAutocomplete('out-material-display', 'out-material-value', 'out-material-list', dbMaterials, false, handleMaterialOutChange);
+            setupAutocomplete('print-material-display', 'print-material-value', 'print-material-list', dbMaterials, false, renderPrintPreview);
+            setupAutocomplete('in-supplier-display', 'in-supplier-value', 'in-supplier-list', [], true);
+
+            ['in', 'out', 'print'].forEach(prefix => {
+                const inputId = `${prefix}-material-display`;
+                const btnId = `btn-clear-${prefix}-mat`;
+                const input = document.getElementById(inputId);
+                if(input) {
+                    input.addEventListener('input', () => toggleClearBtn(inputId, btnId));
+                }
+            });
+        }
+
+        function updateUIAfterDataLoad() {
+            setupAllAutocompletes(); 
+            
+            const activeTabBtn = document.querySelector('.nav-tabs button.border-blue-600');
+            if(!activeTabBtn) return;
+            const activeTab = activeTabBtn.id;
+            
+            if (activeTab === 'tab-btn-in') {
+                const matVal = document.getElementById('in-material-value').value;
+                if(matVal) handleMaterialInChange(matVal);
+            } else if (activeTab === 'tab-btn-out') {
+                const matVal = document.getElementById('out-material-value').value;
+                const currentBatchVal = document.getElementById('out-batch').value;
+                if(matVal) {
+                    handleMaterialOutChange(matVal); 
+                    const batchSelect = document.getElementById('out-batch');
+                    let found = false;
+                    for(let i=0; i<batchSelect.options.length; i++) {
+                        if(batchSelect.options[i].value === currentBatchVal) {
+                            batchSelect.selectedIndex = i; found = true; break;
+                        }
+                    }
+                    if(found) onOutBatchChange();
+                }
+            } else if (activeTab === 'tab-btn-print') {
+                renderPrintPreview();
+            }
+        }
+
+        function fetchDataFromServer(isRefresh = false) {
+            if (!isRefresh) {
+                const loader = document.getElementById('global-loader');
+                loader.style.display = 'flex';
+                setTimeout(() => loader.classList.remove('opacity-0'), 10);
+            } else {
+                const syncStatus = document.getElementById('header-sync-status');
+                syncStatus.innerHTML = '<span class="w-2 h-2 rounded-full bg-blue-500 mr-1 shadow-[0_0_5px_rgba(59,130,246,0.5)] animate-pulse"></span> Menyinkronkan...';
+                syncStatus.className = "text-[10px] text-blue-600 font-bold flex items-center transition-colors duration-300";
+            }
+
+            if (SCRIPT_URL && SCRIPT_URL.startsWith('http')) {
+                fetch(`${SCRIPT_URL}?action=getAppData`)
+                    .then(response => response.json())
+                    .then(data => {
+                        dbMaterials = data.materials || [];
+                        stateBatches = data.batches || [];
+                        updateUIAfterDataLoad();
+                        finishLoading(isRefresh, true);
+                    })
+                    .catch(e => {
+                        console.error("Gagal parse data:", e);
+                        finishLoading(isRefresh, false);
+                    });
+            } else {
+                setTimeout(() => {
+                    updateUIAfterDataLoad();
+                    finishLoading(isRefresh, true);
+                }, 400); 
+            }
+        }
+
+        function finishLoading(isRefresh, success) {
+            const btn = document.getElementById('refresh-btn');
+            const icon = document.getElementById('refresh-icon');
+            btn.disabled = false;
+            icon.classList.remove('fa-spin');
+
+            const syncStatus = document.getElementById('header-sync-status');
+            
+            if (!isRefresh) {
+                const loader = document.getElementById('global-loader');
+                loader.classList.add('opacity-0');
+                setTimeout(() => {
+                    loader.style.display = 'none';
+                    loader.classList.remove('flex');
+                }, 300);
+            }
+
+            if(success) {
+                syncStatus.innerHTML = '<span class="w-2 h-2 rounded-full bg-green-500 mr-1 shadow-[0_0_5px_rgba(34,197,94,0.5)]"></span> Tersinkron';
+                syncStatus.className = "text-[10px] text-green-600 font-bold flex items-center transition-colors duration-300";
+                if(isRefresh) showToast('Sinkronisasi Sukses', 'Data terbaru berhasil ditarik dari server.', 'success');
+                
+                setTimeout(() => {
+                    if(syncStatus.innerText.includes('Tersinkron')) {
+                        syncStatus.innerHTML = '<span class="w-2 h-2 rounded-full bg-green-500 mr-1"></span> Online';
+                    }
+                }, 3000);
+            } else {
+                syncStatus.innerHTML = '<span class="w-2 h-2 rounded-full bg-red-500 mr-1 shadow-[0_0_5px_rgba(239,68,68,0.5)]"></span> Error API';
+                syncStatus.className = "text-[10px] text-red-600 font-bold flex items-center transition-colors duration-300";
+                showToast('Koneksi Error', 'Gagal menyinkronkan data dari Spreadsheet.', 'error');
+            }
+        }
+
+        function refreshData() {
+            const btn = document.getElementById('refresh-btn');
+            const icon = document.getElementById('refresh-icon');
+            btn.disabled = true;
+            icon.classList.add('fa-spin');
+            fetchDataFromServer(true);
+        }
+
+        function handleMaterialInChange(matId) {
+            const form = document.getElementById('form-kedatangan');
+            const inputKode = document.getElementById('in-kode');
+            const inputSupplierDisplay = document.getElementById('in-supplier-display');
+            const inputSupplierValue = document.getElementById('in-supplier-value');
+            
+            if (matId) {
+                const mat = dbMaterials.find(m => m.id === matId);
+                inputKode.value = mat.code;
+                const suppliers = mat.suppliers || [];
+                setupAutocomplete('in-supplier-display', 'in-supplier-value', 'in-supplier-list', suppliers, true);
+                
+                form.classList.remove('opacity-50', 'pointer-events-none', 'translate-y-4');
+                form.classList.add('translate-y-0');
+                
+                inputKode.classList.remove('bg-gray-100', 'text-gray-600');
+                inputKode.classList.add('bg-blue-50', 'text-blue-800', 'border-blue-300');
+            } else {
+                inputKode.value = '';
+                inputSupplierDisplay.value = ''; inputSupplierValue.value = '';
+                form.classList.add('opacity-50', 'pointer-events-none', 'translate-y-4');
+                form.classList.remove('translate-y-0');
+                inputKode.classList.add('bg-gray-100', 'text-gray-600');
+                inputKode.classList.remove('bg-blue-50', 'text-blue-800', 'border-blue-300');
+            }
+        }
+
+        function handleMaterialOutChange(matId) {
+            const batchSelect = document.getElementById('out-batch');
+            const form = document.getElementById('form-pengambilan');
+            const infoBox = document.getElementById('out-stock-info');
+            
+            batchSelect.innerHTML = '<option value="" disabled selected>-- Pilih Batch --</option>';
+            infoBox.classList.add('hidden');
+            
+            if (!matId) {
+                batchSelect.disabled = true;
+                batchSelect.innerHTML = '<option value="">-- Menunggu Material --</option>';
+                form.classList.add('opacity-50', 'pointer-events-none', 'translate-y-4');
+                form.classList.remove('translate-y-0');
+                return;
+            }
+
+            batchSelect.disabled = false;
+            
+            const availableBatches = stateBatches
+                .filter(b => b.materialId === matId)
+                .sort((a, b) => a.tglMasuk.localeCompare(b.tglMasuk));
+
+            let hasActiveBatch = false;
+
+            availableBatches.forEach(b => {
+                let currentStock = b.jumlahAwal;
+                if(b.withdrawals.length > 0) currentStock = b.withdrawals[b.withdrawals.length - 1].sisa;
+
+                if (currentStock > 0) {
+                    const opt = document.createElement('option');
+                    opt.value = b.id;
+                    opt.textContent = `${b.batch} (Stok: ${currentStock} Kg | Masuk: ${formatTgl(b.tglMasuk)})`;
+                    opt.dataset.sisa = currentStock;
+                    batchSelect.appendChild(opt);
+                    hasActiveBatch = true;
+                }
+            });
+
+            if(!hasActiveBatch) {
+                batchSelect.innerHTML = '<option value="">-- Stok Habis / Kartu Penuh --</option>';
+                batchSelect.disabled = true;
+                form.classList.add('opacity-50', 'pointer-events-none', 'translate-y-4');
+                form.classList.remove('translate-y-0');
+            } else {
+                form.classList.remove('opacity-50', 'pointer-events-none', 'translate-y-4');
+                form.classList.add('translate-y-0');
+                batchSelect.selectedIndex = 1; 
+                onOutBatchChange();
+            }
+        }
+
+        function onOutBatchChange() {
+            const batchSelect = document.getElementById('out-batch');
+            const infoBox = document.getElementById('out-stock-info');
+            const sisaLabel = document.getElementById('out-sisa-label');
+
+            if(batchSelect.value) {
+                sisaLabel.textContent = batchSelect.options[batchSelect.selectedIndex].dataset.sisa;
+                infoBox.classList.remove('hidden');
+            } else {
+                infoBox.classList.add('hidden');
+            }
+        }
+
+        function submitKedatangan(e) {
+            e.preventDefault();
+            
+            const matId = document.getElementById('in-material-value').value;
+            const supplierVal = document.getElementById('in-supplier-display').value;
+            if(!matId || !supplierVal) return showToast('Peringatan', 'Harap lengkapi Form', 'error');
+
+            const newBatch = {
+                id: 'B_' + Date.now(),
+                materialId: matId,
+                tglMasuk: document.getElementById('in-tgl').value,
+                batch: document.getElementById('in-batch').value.toUpperCase(),
+                tglExp: document.getElementById('in-exp').value,
+                jumlahAwal: parseFloat(document.getElementById('in-qty').value),
+                supplier: supplierVal.toUpperCase(),
+                keterangan: document.getElementById('in-ket').value || '-',
+                withdrawals: []
+            };
+
+            stateBatches.push(newBatch);
+            
+            showToast('Tersimpan Lokal', `Stok Batch ${newBatch.batch} masuk dan disiapkan untuk sinkronisasi.`, 'success');
+            const form = document.getElementById('form-kedatangan');
+            form.reset();
+            document.getElementById('in-supplier-display').value = '';
+            document.getElementById('in-supplier-value').value = '';
+            document.getElementById('in-tgl').value = new Date().toISOString().split('T')[0];
+            renderPrintPreview(); 
+
+            if (SCRIPT_URL && SCRIPT_URL.startsWith('http')) {
+                const syncStatus = document.getElementById('header-sync-status');
+                syncStatus.innerHTML = '<span class="w-2 h-2 rounded-full bg-blue-500 mr-1 animate-pulse"></span> Menyimpan...';
+                
+                const formData = new URLSearchParams();
+                formData.append('action', 'addKedatangan');
+                formData.append('data', JSON.stringify(newBatch));
+
+                fetch(SCRIPT_URL, { method: 'POST', body: formData })
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.success) {
+                            syncStatus.innerHTML = '<span class="w-2 h-2 rounded-full bg-green-500 mr-1"></span> Tersimpan'; 
+                            showToast('Sukses Cloud', `Data Batch ${newBatch.batch} berhasil dibackup.`, 'info');
+                        } else throw new Error('API Reject');
+                    })
+                    .catch(e => {
+                        stateBatches = stateBatches.filter(b => b.id !== newBatch.id);
+                        showToast('Error Server', `Gagal mem-backup Batch ${newBatch.batch} ke Spreadsheet.`, 'error');
+                        syncStatus.innerHTML = '<span class="w-2 h-2 rounded-full bg-red-500 mr-1"></span> Error';
+                        renderPrintPreview();
+                    });
+            }
+        }
+
+        function submitPengambilan(e) {
+            e.preventDefault();
+            
+            const batchId = document.getElementById('out-batch').value;
+            const tglVal = document.getElementById('out-tgl').value;
+            const shiftSelect = document.getElementById('out-shift-select').value;
+            const qty = parseFloat(document.getElementById('out-qty').value);
+            
+            if(!batchId || !tglVal || !shiftSelect) return showToast('Peringatan', 'Lengkapi form pemotongan!', 'error');
+
+            const batch = stateBatches.find(b => b.id === batchId);
+            let lastSisa = batch.jumlahAwal;
+            if(batch.withdrawals.length > 0) lastSisa = batch.withdrawals[batch.withdrawals.length - 1].sisa;
+
+            if(qty > lastSisa) return showToast('Stok Kurang', `Jumlah diambil melebihi sisa stok (${lastSisa} KG).`, 'error');
+
+            const day = tglVal.split('-')[2];
+            const shiftStr = `${day}/S${shiftSelect}`; 
+            const sisaBaru = lastSisa - qty;
+            
+            const newWithdrawal = { shift: shiftStr, qty: qty, sisa: sisaBaru };
+
+            batch.withdrawals.push(newWithdrawal);
+            
+            showToast('Berhasil Dipotong', `Sisa stok batch terpilih menjadi ${sisaBaru} KG.`, 'success');
+            document.getElementById('out-qty').value = ''; 
+            
+            const matVal = document.getElementById('out-material-value').value;
+            handleMaterialOutChange(matVal); 
+            
+            const batchSelect = document.getElementById('out-batch');
+            for(let i=0; i<batchSelect.options.length; i++) {
+                if(batchSelect.options[i].value === batchId) {
+                    batchSelect.selectedIndex = i; onOutBatchChange(); break;
+                }
+            }
+
+            if (SCRIPT_URL && SCRIPT_URL.startsWith('http')) {
+                const syncStatus = document.getElementById('header-sync-status');
+                syncStatus.innerHTML = '<span class="w-2 h-2 rounded-full bg-orange-500 mr-1 animate-pulse"></span> Memotong...';
+
+                const formData = new URLSearchParams();
+                formData.append('action', 'addPengambilan');
+                formData.append('data', JSON.stringify({ batchId: batchId, shift: shiftStr, qty: qty, sisa: sisaBaru }));
+
+                fetch(SCRIPT_URL, { method: 'POST', body: formData })
+                    .then(res => res.json())
+                    .then(data => {
+                        if(data.success) {
+                            syncStatus.innerHTML = '<span class="w-2 h-2 rounded-full bg-green-500 mr-1"></span> Tersimpan';
+                            showToast('Tersinkronisasi', 'Data potongan masuk ke laporan pusat.', 'info');
+                        } else throw new Error('API Reject');
+                    })
+                    .catch(e => {
+                        batch.withdrawals.pop(); 
+                        showToast('Gagal Sinkronisasi', 'Gagal memotong stok di server, data dibatalkan kembali.', 'error');
+                        handleMaterialOutChange(matVal); 
+                        syncStatus.innerHTML = '<span class="w-2 h-2 rounded-full bg-red-500 mr-1"></span> Error';
+                    });
+            }
+        }
+
+        function renderPrintPreview() {
+            const matId = document.getElementById('print-material-value').value;
+            const bulan = document.getElementById('print-bulan').value; 
+            const btnPrint = document.getElementById('btn-print');
+            const workspace = document.getElementById('print-workspace');
+
+            if(!matId || !bulan) { 
+                btnPrint.disabled = true; 
+                workspace.innerHTML = generatePageHTML(null, null, null, []);
+                return; 
+            }
+            
+            btnPrint.disabled = false;
+            const mat = dbMaterials.find(m => m.id === matId);
+            if(!mat) return;
+
+            const [y, m] = bulan.split('-');
+            const monthNames = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+            const bulanLabel = `${monthNames[parseInt(m)-1]} ${y}`;
+
+            const filteredBatches = stateBatches
+                .filter(b => b.materialId === matId && b.tglMasuk.startsWith(bulan))
+                .sort((a, b) => a.tglMasuk.localeCompare(b.tglMasuk));
+
+            let displayBlocks = [];
+            filteredBatches.forEach(batch => {
+                let numWithdrawals = batch.withdrawals.length;
+                if (numWithdrawals === 0) {
+                    displayBlocks.push({ batch: batch, startIndex: 0, isContinuation: false });
+                } else {
+                    for (let i = 0; i < numWithdrawals; i += 8) {
+                        displayBlocks.push({
+                            batch: batch,
+                            startIndex: i,
+                            isContinuation: i > 0 
+                        });
+                    }
+                }
+            });
+
+            let allPagesHtml = '';
+            if (displayBlocks.length === 0) {
+                 allPagesHtml = generatePageHTML(mat.name, mat.code, bulanLabel, []);
+            } else {
+                const rowsPerPage = 11;
+                for (let i = 0; i < displayBlocks.length; i += rowsPerPage) {
+                    const chunk = displayBlocks.slice(i, i + rowsPerPage);
+                    allPagesHtml += generatePageHTML(mat.name, mat.code, bulanLabel, chunk);
+                }
+            }
+            
+            workspace.innerHTML = allPagesHtml; 
+        }
+        
+        function generatePageHTML(nama, kode, bulan, blocks) {
+            let tbodyHtml = '';
+            for(let i=0; i<11; i++) {
+                if(blocks && blocks[i]) {
+                    tbodyHtml += generateFilledRow(blocks[i].batch, blocks[i].startIndex, blocks[i].isContinuation);
+                } else {
+                    tbodyHtml += generateEmptyRows();
+                }
+            }
+
+            return `
+            <div class="page-scale-wrapper">
+                <div class="page-container">
+                    <div class="shrink-0">
+                        <div class="grid grid-cols-3 mb-1 items-center">
+                            <div class="flex items-center gap-3">
+                                <img src="https://www.image2url.com/r2/default/files/1785642175342-6f1d4abc-728d-4f28-8c4a-3b499c8b88c5.png" alt="Mayora" class="w-12 h-12 object-contain filter grayscale contrast-125">
+                                <div class="text-[10px] font-bold leading-tight text-black">
+                                    <p>PT. MAYORA INDAH</p>
+                                    <p>DIVISI BISCUIT &ndash; JAYANTI 2</p>
+                                    <p>MAY/PRC/LIK/BSC/MBR/PRDCKT/19/004-01-01</p>
+                                </div>
+                            </div>
+                            <div class="text-center">
+                                <h1 class="text-base font-bold tracking-wide text-black whitespace-nowrap">KARTU STOCK JALUR GWIP</h1>
+                            </div>
+                            <div></div>
+                        </div>
+
+                        <div class="flex flex-col text-[11px] font-bold w-1/2 mb-1 text-black">
+                            <div class="flex items-end mb-0.5"><div class="w-32">NAMA BARANG</div><div>: <span class="inline-block min-w-[250px] uppercase px-1">${nama || ''}</span></div></div>
+                            <div class="flex items-end mb-0.5"><div class="w-32">KODE BARANG</div><div>: <span class="inline-block min-w-[250px] uppercase px-1">${kode || ''}</span></div></div>
+                            <div class="flex items-end"><div class="w-32">BULAN</div><div>: <span class="inline-block min-w-[250px] uppercase px-1">${bulan || ''}</span></div></div>
+                        </div>
+                    </div>
+
+                    <div class="flex-grow flex flex-col my-1 min-h-0">
+                        <table class="doc-table h-full">
+                            <colgroup>
+                                <col style="width: 7.5%;"> <col style="width: 9%;"> <col style="width: 7%;"> <col style="width: 8%;"> <col style="width: 6%;">
+                                <col style="width: 5.5%;"> <col style="width: 5%;"> <col style="width: 5%;"> <col style="width: 5%;"> <col style="width: 5%;">
+                                <col style="width: 5%;"> <col style="width: 5%;"> <col style="width: 5%;"> <col style="width: 5%;"> <col style="width: 12%;">
+                            </colgroup>
+                            <thead>
+                                <tr>
+                                    <th>TGL KEDATANGAN</th> <th>KODE BATCH</th> <th>TGL EXP</th>
+                                    <th>SUPPLIER</th> <th>JUMLAH</th>
+                                    <th colspan="9" class="tracking-widest">PENGAMBILAN</th>
+                                    <th>KETERANGAN</th>
+                                </tr>
+                            </thead>
+                            <tbody>${tbodyHtml}</tbody>
+                        </table>
+                    </div>
+
+                    <div class="shrink-0 mt-2 flex justify-between w-full px-24 text-[11px] font-bold text-black">
+                        <div class="text-center"><p>DIBUAT OLEH ;</p><div class="h-14 w-32 mx-auto mt-1"></div><p class="mt-1">OPERATOR GWIP</p></div>
+                        <div class="text-center"><p>MENGETAHUI ;</p><div class="h-14 w-32 mx-auto mt-1"></div><p class="mt-1">UNIT HEAD</p></div>
+                    </div>
+                </div>
+            </div>`;
+        }
+
+        function generateFilledRow(batch, startIndex = 0, isContinuation = false) {
+            let colsShift = '', colsQty = '', colsSisa = '';
+            for(let j=0; j<8; j++) {
+                const w = batch.withdrawals[startIndex + j];
+                if(w) {
+                    let displayShift = formatShiftDisplay(w.shift);
+                    colsShift += `<td class="doc-text-center font-bold">${displayShift}</td>`;
+                    colsQty += `<td class="doc-text-center">${w.qty}</td>`;
+                    colsSisa += `<td class="doc-text-center font-bold">${w.sisa}</td>`;
+                } else {
+                    colsShift += `<td></td>`; colsQty += `<td></td>`; colsSisa += `<td></td>`;
+                }
+            }
+
+            if (isContinuation) {
+                return `
+                    <tr>
+                        <td rowspan="3"></td>
+                        <td rowspan="3"></td>
+                        <td rowspan="3"></td>
+                        <td rowspan="3"></td>
+                        <td rowspan="3"></td>
+                        <td class="doc-text-bold doc-text-center bg-gray-100 text-[8px]">TGL/SHIFT</td>${colsShift}
+                        <td rowspan="3"></td>
+                    </tr>
+                    <tr><td class="doc-text-bold doc-text-center bg-gray-100 text-[8px]">JUMLAH</td>${colsQty}</tr>
+                    <tr><td class="doc-text-bold doc-text-center bg-gray-100 text-[8px]">SISA</td>${colsSisa}</tr>
+                `;
+            }
+
+            return `
+                <tr>
+                    <td rowspan="3" class="doc-text-center">${formatTgl(batch.tglMasuk)}</td>
+                    <td rowspan="3" class="doc-text-center doc-text-bold text-[10px] bg-yellow-50/30">${batch.batch}</td>
+                    <td rowspan="3" class="doc-text-center">${formatTgl(batch.tglExp)}</td>
+                    <td rowspan="3" class="doc-text-center text-[8px] leading-tight">${batch.supplier}</td>
+                    <td rowspan="3" class="doc-text-center doc-text-bold text-[11px] bg-green-50/30">${batch.jumlahAwal}</td>
+                    <td class="doc-text-bold doc-text-center bg-gray-100 text-[8px]">TGL/SHIFT</td>${colsShift}
+                    <td rowspan="3" class="doc-text-left doc-align-top text-[8px] p-1">${batch.keterangan}</td>
+                </tr>
+                <tr><td class="doc-text-bold doc-text-center bg-gray-100 text-[8px]">JUMLAH</td>${colsQty}</tr>
+                <tr><td class="doc-text-bold doc-text-center bg-gray-100 text-[8px]">SISA</td>${colsSisa}</tr>
+            `;
+        }
+
+        function generateEmptyRows() {
+            let emptyCols = ''; for(let j=0; j<8; j++) emptyCols += '<td></td>';
+            return `
+                <tr><td rowspan="3"></td><td rowspan="3"></td><td rowspan="3"></td><td rowspan="3"></td><td rowspan="3"></td>
+                <td class="doc-text-bold doc-text-center text-gray-500 bg-gray-50 text-[8px]">TGL/SHIFT</td>${emptyCols}<td rowspan="3"></td></tr>
+                <tr><td class="doc-text-bold doc-text-center text-gray-500 bg-gray-50 text-[8px]">JUMLAH</td>${emptyCols}</tr>
+                <tr><td class="doc-text-bold doc-text-center text-gray-500 bg-gray-50 text-[8px]">SISA</td>${emptyCols}</tr>
+            `;
+        }
+
+        function resetFormKedatangan() {
+            document.getElementById('form-kedatangan').reset();
+            document.getElementById('in-supplier-display').value = '';
+            document.getElementById('in-supplier-value').value = '';
+            
+            document.getElementById('in-material-display').value = '';
+            document.getElementById('in-material-value').value = '';
+            handleMaterialInChange('');
+            toggleClearBtn('in-material-display', 'btn-clear-in-mat');
+        }
+
+        function switchTab(tabId) {
+            document.getElementById('panel-in').classList.add('hidden');
+            document.getElementById('panel-out').classList.add('hidden');
+            document.getElementById('panel-print').classList.add('hidden');
+            
+            const baseClass = "px-5 py-3 font-semibold text-sm border-b-2 flex items-center whitespace-nowrap rounded-t-lg transition-colors ";
+            
+            ['in', 'out', 'print'].forEach(t => {
+                const btn = document.getElementById(`tab-btn-${t}`);
+                btn.className = baseClass + "border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-50";
+                btn.querySelector('div').className = "w-6 h-6 rounded-full bg-gray-100 text-gray-500 flex items-center justify-center mr-2 transition-colors";
+            });
+
+            document.getElementById(`panel-${tabId}`).classList.remove('hidden');
+            const activeBtn = document.getElementById(`tab-btn-${tabId}`);
+            activeBtn.className = baseClass + "border-blue-600 text-blue-700 bg-blue-50/50";
+            activeBtn.querySelector('div').className = "w-6 h-6 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center mr-2";
+
+            if(tabId === 'print') renderPrintPreview();
+        }
+
+        // Desain Toast Modern Glassmorphism
+        function showToast(title, msg, type) {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.style.pointerEvents = 'auto'; // Mengembalikan klik agar bisa ditutup
+            
+            const styles = {
+                success: { bg: 'bg-white/95', line: 'bg-emerald-500', iconBg: 'bg-emerald-100 text-emerald-600', icon: 'fa-check' },
+                error: { bg: 'bg-white/95', line: 'bg-rose-500', iconBg: 'bg-rose-100 text-rose-600', icon: 'fa-exclamation' },
+                info: { bg: 'bg-white/95', line: 'bg-blue-500', iconBg: 'bg-blue-100 text-blue-600', icon: 'fa-info' }
+            };
+            const style = styles[type] || styles.info;
+
+            toast.className = `toast-enter glass-panel border border-white/60 shadow-[0_8px_30px_rgb(0,0,0,0.12)] rounded-2xl p-4 flex items-start w-[340px] max-w-[calc(100vw-2rem)] relative overflow-hidden ${style.bg}`;
+            toast.innerHTML = `
+                <div class="absolute left-0 top-0 bottom-0 w-1.5 ${style.line}"></div>
+                <div class="flex-shrink-0 w-10 h-10 rounded-full ${style.iconBg} flex items-center justify-center mr-3 shadow-inner">
+                    <i class="fas ${style.icon} text-lg"></i>
+                </div>
+                <div class="flex-1 pt-0.5">
+                    <h4 class="font-bold text-gray-800 text-sm tracking-tight mb-0.5">${title}</h4>
+                    <p class="text-xs text-gray-500 leading-relaxed">${msg}</p>
+                </div>
+                <button class="text-gray-400 hover:text-gray-700 hover:bg-gray-100 w-8 h-8 flex items-center justify-center rounded-lg transition-colors ml-2 shrink-0 focus:outline-none" onclick="this.parentElement.remove()">
+                    <i class="fas fa-times text-sm"></i>
+                </button>
+                <div class="absolute bottom-0 left-0 h-1 ${style.line} toast-progress w-full"></div>
+            `;
+            container.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.classList.remove('toast-enter');
+                toast.classList.add('toast-leave');
+                setTimeout(() => toast.remove(), 400); // 400ms match the CSS animation timeout
+            }, 3000);
+        }
+
+        function handleLogin(e) {
+            e.preventDefault();
+            const user = document.getElementById('username').value;
+            const pass = document.getElementById('password').value;
+            const loginBtn = document.getElementById('login-btn');
+            
+            loginBtn.disabled = true;
+            loginBtn.innerHTML = '<div class="w-5 h-5 border-2 border-white border-t-transparent rounded-full loader-spin mr-2"></div> Memeriksa...';
+
+            if (SCRIPT_URL && SCRIPT_URL.startsWith('http')) {
+                fetch(`${SCRIPT_URL}?action=verifyLogin&user=${encodeURIComponent(user)}&pass=${encodeURIComponent(pass)}`)
+                    .then(res => res.json())
+                    .then(response => {
+                        if (response.success) {
+                            processLoginSuccess(response.name, response.role);
+                        } else {
+                            loginBtn.disabled = false;
+                            loginBtn.innerHTML = 'Masuk Aplikasi';
+                            showLoginError(response.message || 'Username atau password salah!');
+                        }
+                    })
+                    .catch(e => {
+                        loginBtn.disabled = false;
+                        loginBtn.innerHTML = 'Masuk Aplikasi';
+                        showLoginError('Gagal terhubung ke server Google.');
+                    });
+            } else {
+                setTimeout(() => {
+                    loginBtn.disabled = false;
+                    loginBtn.innerHTML = 'Masuk Aplikasi';
+                    if(user === 'admin' && pass === 'admin123') {
+                        processLoginSuccess('Administrator', 'Admin');
+                    } else if (user === 'operator' && pass === 'op123') {
+                        processLoginSuccess('Operator', 'User');
+                    } else {
+                        showLoginError('Akun salah! (Preview: pakai admin / admin123)');
+                    }
+                }, 800);
+            }
+        }
+
+        function showLoginError(msg) {
+            const errorMsg = document.getElementById('login-error');
+            errorMsg.innerHTML = `<i class="fas fa-exclamation-triangle mr-1"></i> ${msg}`;
+            errorMsg.classList.remove('hidden');
+            errorMsg.classList.add('animate-pulse');
+            setTimeout(() => { errorMsg.classList.add('hidden'); errorMsg.classList.remove('animate-pulse'); }, 4000);
+        }
+
+        function processLoginSuccess(name, role) {
+            document.getElementById('login-overlay').style.opacity = '0';
+            document.getElementById('header-user-info').textContent = `${name}`;
+            
+            setTimeout(() => {
+                document.getElementById('login-overlay').style.display = 'none';
+                document.getElementById('main-app').classList.remove('hidden');
+                document.getElementById('main-app').classList.add('flex');
+                initApp(); 
+            }, 500);
+        }
+
+        function logout() {
+            document.getElementById('main-app').classList.add('hidden');
+            document.getElementById('main-app').classList.remove('flex');
+            document.getElementById('login-form').reset();
+            const overlay = document.getElementById('login-overlay');
+            overlay.style.display = 'flex';
+            setTimeout(() => overlay.style.opacity = '1', 50);
+        }
+
+        function initApp() {
+            const today = new Date();
+            document.getElementById('print-bulan').value = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}`;
+            document.getElementById('in-tgl').value = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+            document.getElementById('out-tgl').value = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+            
+            fetchDataFromServer(false);
+        }
+
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                if (window.location.protocol === 'https:' || window.location.protocol === 'http:') {
+                    navigator.serviceWorker.register('./sw.js')
+                        .then(registration => {
+                            console.log('ServiceWorker registered with scope:', registration.scope);
+                        })
+                        .catch(error => {
+                            console.error('ServiceWorker registration failed:', error);
+                        });
+                } else {
+                    console.log('PWA Service Worker dinonaktifkan sementara di environment pratinjau (Preview).');
+                }
+            });
+        }
+    </script>
+</body>
+</html>
