@@ -488,12 +488,18 @@
                             </div>
                         </div>
                         
-                        <!-- Kolom Pencarian Rekap -->
-                        <div class="w-full sm:w-64 relative">
-                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
-                                <i class="fas fa-search"></i>
+                        <!-- Kolom Pencarian Rekap & Tombol WA (Diperbarui) -->
+                        <div class="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
+                            <div class="w-full sm:w-64 relative">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+                                    <i class="fas fa-search"></i>
+                                </div>
+                                <input type="text" id="rekap-search" onkeyup="filterRekap()" class="form-input pl-10 py-2 text-sm bg-white border-gray-200 rounded-xl focus:border-slate-400 focus:ring-slate-400" placeholder="Cari material/supplier...">
                             </div>
-                            <input type="text" id="rekap-search" onkeyup="filterRekap()" class="form-input pl-10 py-2 text-sm bg-white border-gray-200 rounded-xl focus:border-slate-400 focus:ring-slate-400" placeholder="Cari material/supplier...">
+                            
+                            <button onclick="shareToWhatsApp()" class="btn-modern w-full sm:w-auto px-4 py-2 bg-[#25D366] hover:bg-[#128C7E] text-white font-medium rounded-xl shadow-sm flex items-center justify-center transition-colors" title="Bagikan rekap stok ke WhatsApp">
+                                <i class="fab fa-whatsapp mr-2 text-lg"></i> Share WA
+                            </button>
                         </div>
                     </div>
 
@@ -547,6 +553,7 @@
 
         let dbMaterials = [];
         let stateBatches = [];
+        let currentUserRole = 'User'; // Variabel untuk menyimpan role user yang aktif
         
         // Peningkatan Responsivitas: Variabel Pemuatan Latar Belakang (Silent Fetch)
         let isDataPrefetched = false;
@@ -603,7 +610,6 @@
             }
         }
 
-        // Mulai prefetch segera saat halaman dimuat
         startSilentPrefetch();
 
         function formatTgl(dateStr) {
@@ -811,7 +817,6 @@
 
         async function fetchDataFromServer(isRefresh = false) {
             if (!isRefresh) {
-                // Logika Inisialisasi dari Login (Memanfaatkan Prefetched Data agar responsif)
                 const loader = document.getElementById('global-loader');
                 
                 const processData = () => {
@@ -820,10 +825,8 @@
                 };
 
                 if (isDataPrefetched) {
-                    // Data sudah siap karena diambil di background saat user ketik password
                     processData();
                 } else {
-                    // Jaga-jaga jika internet super lambat dan login lebih cepat
                     loader.style.display = 'flex';
                     setTimeout(() => loader.classList.remove('opacity-0'), 10);
                     if (prefetchPromise) {
@@ -836,7 +839,6 @@
                     }
                 }
             } else {
-                // Logika untuk tombol Refresh (Paksa tarik ulang)
                 const syncStatus = document.getElementById('header-sync-status');
                 syncStatus.innerHTML = '<span class="w-2 h-2 rounded-full bg-blue-500 mr-1 shadow-[0_0_5px_rgba(59,130,246,0.5)] animate-pulse"></span> Menyinkronkan...';
                 syncStatus.className = "text-[10px] text-blue-600 font-bold flex items-center transition-colors duration-300";
@@ -1154,6 +1156,9 @@
                     return b.totalSisa - a.totalSisa; 
                 });
 
+                // Menyimpan data terbaru ke variabel global untuk dibagikan ke WA
+                window.latestRekapData = allRecaps;
+
                 let html = '';
                 if (allRecaps.length === 0) {
                     html = '<div class="text-center text-gray-500 py-10 bg-white rounded-xl shadow-sm border border-gray-100">Belum ada data master material.</div>';
@@ -1216,6 +1221,39 @@
                     card.style.display = 'none';
                 }
             });
+        }
+
+        // Fungsi Baru untuk Berbagi ke WhatsApp
+        function shareToWhatsApp() {
+            if (!window.latestRekapData || window.latestRekapData.length === 0) {
+                showToast('Info', 'Tidak ada data stok untuk dibagikan saat ini.', 'info');
+                return;
+            }
+
+            let text = `*REKAP STOK GWIP 1113*\n`;
+            text += `Tanggal: ${new Date().toLocaleDateString('id-ID', {day:'numeric', month:'long', year:'numeric'})}\n`;
+            text += `Waktu: ${new Date().toLocaleTimeString('id-ID', {hour:'2-digit', minute:'2-digit'})}\n\n`;
+
+            window.latestRekapData.forEach((item, index) => {
+                text += `${index + 1}. *${item.materialName}* (${item.materialCode})\n`;
+                text += `   Total Stok: ${item.totalSisa} KG\n`;
+                
+                let brandNames = Object.keys(item.brands);
+                let activeBrands = brandNames.filter(k => item.brands[k] > 0);
+                if (activeBrands.length > 0) {
+                    text += `   Detail: ${activeBrands.map(b => `${b} (${item.brands[b]} KG)`).join(', ')}\n`;
+                } else {
+                    text += `   Detail: Stok Habis\n`;
+                }
+                text += `\n`;
+            });
+
+            text += `_Di-generate otomatis dari Sistem GWIP Connect_`;
+
+            // Encode string untuk URL dan buka tautan WhatsApp
+            const encodedText = encodeURIComponent(text);
+            const waUrl = `https://wa.me/?text=${encodedText}`;
+            window.open(waUrl, '_blank');
         }
 
         function renderPrintPreview() {
@@ -1402,6 +1440,12 @@
         }
 
         function switchTab(tabId) {
+            // Guard: Cegah Viewer masuk ke form In atau Out secara paksa
+            if (currentUserRole.toLowerCase() === 'viewer' && (tabId === 'in' || tabId === 'out')) {
+                showToast('Akses Dibatasi', 'Mode Viewer hanya dapat melihat rekap dan mencetak kartu stok.', 'error');
+                return;
+            }
+
             document.getElementById('panel-in').classList.add('hidden');
             document.getElementById('panel-out').classList.add('hidden');
             document.getElementById('panel-rekap').classList.add('hidden');
@@ -1424,8 +1468,6 @@
             let activeIconClass = "bg-blue-100 text-blue-600";
             
             if(tabId === 'out') { activeColorClass = "border-orange-500 text-orange-700 bg-orange-50/50"; activeIconClass = "bg-orange-100 text-orange-600"; }
-            
-            // Implementasi Warna Slate untuk Tab Rekap 
             if(tabId === 'rekap') { activeColorClass = "border-slate-600 text-slate-800 bg-slate-50/80"; activeIconClass = "bg-slate-200 text-slate-700"; }
             
             activeBtn.className = baseClass + activeColorClass;
@@ -1503,12 +1545,15 @@
                         loginBtn.disabled = false;
                         loginBtn.innerHTML = 'Masuk Aplikasi';
                         
+                        // Fallback login lokal (untuk demo tanpa koneksi API yang valid)
                         if(user === 'admin' && pass === 'admin123') {
                             processLoginSuccess('Administrator (Demo)', 'Admin');
                         } else if (user === 'operator' && pass === 'op123') {
                             processLoginSuccess('Operator (Demo)', 'User');
+                        } else if (user === 'viewer' && pass === 'view123') {
+                            processLoginSuccess('Viewer (Demo)', 'Viewer'); // Tambahan Role Viewer Demo
                         } else {
-                            showLoginError('API Error! (Gunakan akun demo: admin / admin123)');
+                            showLoginError('API Error! (Gunakan akun demo: admin, operator, atau viewer)');
                         }
                     });
             } else {
@@ -1519,8 +1564,10 @@
                         processLoginSuccess('Administrator', 'Admin');
                     } else if (user === 'operator' && pass === 'op123') {
                         processLoginSuccess('Operator', 'User');
+                    } else if (user === 'viewer' && pass === 'view123') {
+                        processLoginSuccess('Viewer', 'Viewer'); // Tambahan Role Viewer
                     } else {
-                        showLoginError('Akun salah! (Preview: pakai admin / admin123)');
+                        showLoginError('Akun salah! (Preview: pakai admin/admin123, viewer/view123)');
                     }
                 }, 800);
             }
@@ -1534,14 +1581,37 @@
             setTimeout(() => { errorMsg.classList.add('hidden'); errorMsg.classList.remove('animate-pulse'); }, 4000);
         }
 
+        // Logic memproses UI berdasarkan Role saat berhasil masuk
         function processLoginSuccess(name, role) {
+            currentUserRole = role || 'User'; // Simpan role ke variabel global
+            
             document.getElementById('login-overlay').style.opacity = '0';
             document.getElementById('header-user-info').textContent = `${name}`;
             
+            // Konfigurasi Visibilitas Tab berdasarkan Role (RBAC)
+            const tabIn = document.getElementById('tab-btn-in');
+            const tabOut = document.getElementById('tab-btn-out');
+            
+            if (currentUserRole.toLowerCase() === 'viewer') {
+                tabIn.style.display = 'none'; // Sembunyikan tab kedatangan
+                tabOut.style.display = 'none'; // Sembunyikan tab pengambilan
+            } else {
+                tabIn.style.display = 'flex';
+                tabOut.style.display = 'flex';
+            }
+
             setTimeout(() => {
                 document.getElementById('login-overlay').style.display = 'none';
                 document.getElementById('main-app').classList.remove('hidden');
                 document.getElementById('main-app').classList.add('flex');
+                
+                // Menentukan tab default setelah login berdasarkan role
+                if (currentUserRole.toLowerCase() === 'viewer') {
+                    switchTab('rekap');
+                } else {
+                    switchTab('in');
+                }
+
                 initApp(); 
             }, 500);
         }
@@ -1550,6 +1620,8 @@
             document.getElementById('main-app').classList.add('hidden');
             document.getElementById('main-app').classList.remove('flex');
             document.getElementById('login-form').reset();
+            currentUserRole = 'User'; // reset ke default saat keluar
+            
             const overlay = document.getElementById('login-overlay');
             overlay.style.display = 'flex';
             setTimeout(() => overlay.style.opacity = '1', 50);
