@@ -3,16 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistem Kartu Stock GWIP 1113 - PT Mayora Indah</title>
+    <title>Sistem Kartu Stock GWIP 1113 - PT Mayora Indah (Online Mode)</title>
     
-    <!-- PWA Meta Tags & Manifest -->
-    <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#3b82f6">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link rel="icon" href="https://www.image2url.com/r2/default/files/1785642175342-6f1d4abc-728d-4f28-8c4a-3b499c8b88c5.png" type="image/png">
-    <link rel="apple-touch-icon" href="https://www.image2url.com/r2/default/files/1785642175342-6f1d4abc-728d-4f28-8c4a-3b499c8b88c5.png">
-
+    
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
@@ -108,16 +105,12 @@
         @media (max-width: 1100px) { .page-scale-wrapper { transform: scale(0.7); margin-bottom: calc(2rem - 63mm); } }
         @media (max-width: 850px) { .page-scale-wrapper { transform: scale(0.6); margin-bottom: calc(2rem - 84mm); } }
         
-        /* Layout Mobile Cetak */
         @media (max-width: 640px) { 
             .print-workspace { align-items: flex-start; padding: 1rem; }
             .page-scale-wrapper { transform: scale(0.5); transform-origin: top left; margin-bottom: calc(1rem - 105mm); } 
         }
         @media (max-width: 480px) { 
             .page-scale-wrapper { transform: scale(0.45); transform-origin: top left; margin-bottom: calc(1rem - 115.5mm); } 
-        }
-        @media (max-width: 380px) { 
-            .page-scale-wrapper { transform: scale(0.4); transform-origin: top left; margin-bottom: calc(1rem - 126mm); } 
         }
 
         .doc-table { width: 100%; height: 100%; border-collapse: collapse; table-layout: fixed; border: 2px solid #111827; }
@@ -145,10 +138,10 @@
             overflow: hidden;
         }
         .btn-modern:active { transform: scale(0.95); }
+        .btn-modern:disabled { opacity: 0.7; cursor: not-allowed; }
         .loader-spin { animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-        /* Modern Toast Animations */
         .toast-enter { animation: toastSlideIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
         .toast-leave { animation: toastSlideOut 0.4s ease-in forwards; }
         @keyframes toastSlideIn { from { transform: translateX(120%) scale(0.9); opacity: 0; } to { transform: translateX(0) scale(1); opacity: 1; } }
@@ -158,15 +151,12 @@
             animation: shrink 3s linear forwards;
             transform-origin: left;
         }
-        @keyframes shrink {
-            from { transform: scaleX(1); }
-            to { transform: scaleX(0); }
-        }
+        @keyframes shrink { from { transform: scaleX(1); } to { transform: scaleX(0); } }
 
         @media print {
             @page { size: A4 landscape; margin: 5mm; }
             body { background: white; height: auto; overflow: visible; display: block; }
-            #login-overlay { display: none !important; }
+            #login-overlay, #global-loader { display: none !important; }
             #main-app { display: flex !important; flex-direction: column; height: auto; }
             .no-print, header, .nav-tabs, #toast-container { display: none !important; }
             .print-workspace { padding: 0; background-color: transparent; display: block; overflow: visible; }
@@ -178,9 +168,7 @@
                 margin-bottom: 0 !important; 
                 page-break-after: always;
             }
-            .page-scale-wrapper:last-child {
-                page-break-after: auto;
-            }
+            .page-scale-wrapper:last-child { page-break-after: auto; }
             .page-container {
                 margin: 0; padding: 0mm 5mm; width: 100%; min-height: 100%;
                 box-shadow: none; border-radius: 0; page-break-inside: avoid;
@@ -191,11 +179,11 @@
 </head>
 <body>
 
-    <div id="global-loader" class="fixed inset-0 bg-white/90 backdrop-blur-sm z-[200] hidden items-center justify-center transition-opacity duration-300">
-        <div class="flex flex-col items-center">
+    <div id="global-loader" class="fixed inset-0 bg-white/95 backdrop-blur-sm z-[200] hidden items-center justify-center transition-opacity duration-300">
+        <div id="loader-content" class="flex flex-col items-center">
             <div class="w-12 h-12 border-4 border-blue-200 border-t-blue-600 rounded-full loader-spin mb-3"></div>
-            <p class="font-semibold text-blue-800 animate-pulse text-lg">Mempersiapkan Workspace...</p>
-            <p class="text-xs text-blue-500 mt-2">Sinkronisasi data sedang berjalan</p>
+            <p class="font-semibold text-blue-800 animate-pulse text-lg">Menyambungkan ke Spreadsheet...</p>
+            <p class="text-xs text-blue-500 mt-2">Wajib terkoneksi internet</p>
         </div>
     </div>
 
@@ -209,30 +197,26 @@
                     <img src="https://www.image2url.com/r2/default/files/1785642175342-6f1d4abc-728d-4f28-8c4a-3b499c8b88c5.png" alt="Mayora Logo" class="w-16 mx-auto">
                 </div>
                 <h2 class="text-2xl font-bold text-gray-800 tracking-tight">GWIP System</h2>
-                <p class="text-gray-500 text-sm mt-1">Divisi Proses Biscuit - Jayanti 2</p>
+                <p class="text-gray-500 text-sm mt-1">Sistem Online - Wajib Internet</p>
             </div>
             
             <form id="login-form" onsubmit="handleLogin(event)">
                 <div class="form-group mb-5">
                     <label class="form-label" for="username">Username</label>
                     <div class="relative">
-                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                            <i class="fas fa-user text-gray-400"></i>
-                        </div>
+                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none"><i class="fas fa-user text-gray-400"></i></div>
                         <input class="form-input pl-11" id="username" type="text" placeholder="Masukkan username" required autocomplete="off">
                     </div>
                 </div>
                 <div class="form-group mb-6">
                     <label class="form-label" for="password">Password</label>
                     <div class="relative">
-                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                            <i class="fas fa-lock text-gray-400"></i>
-                        </div>
+                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none"><i class="fas fa-lock text-gray-400"></i></div>
                         <input class="form-input pl-11" id="password" type="password" placeholder="••••••••" required>
                     </div>
-                    <p id="login-error" class="text-red-500 text-xs italic mt-2 hidden font-medium"><i class="fas fa-exclamation-triangle mr-1"></i> Username atau password salah!</p>
+                    <p id="login-error" class="text-red-500 text-xs italic mt-2 hidden font-medium"><i class="fas fa-exclamation-triangle mr-1"></i> Pesan Error</p>
                 </div>
-                <button id="login-btn" class="btn-modern bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 w-full text-white font-semibold py-3 px-4 rounded-xl shadow-lg shadow-blue-500/30 flex justify-center items-center" type="submit">
+                <button id="login-btn" class="btn-modern bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 w-full text-white font-semibold py-3 px-4 rounded-xl shadow-lg flex justify-center items-center" type="submit">
                     Masuk Aplikasi
                 </button>
             </form>
@@ -248,26 +232,26 @@
                         <img src="https://www.image2url.com/r2/default/files/1785642175342-6f1d4abc-728d-4f28-8c4a-3b499c8b88c5.png" alt="Logo" class="w-7 h-7 object-contain">
                     </div>
                     <div>
-                        <h1 class="font-bold text-gray-800 text-lg leading-tight hidden sm:block">GWIP Connect 1113</h1>
+                        <h1 class="font-bold text-gray-800 text-lg leading-tight hidden sm:block">1113 GWIP</h1>
                         <h1 class="font-bold text-gray-800 text-lg leading-tight sm:hidden">GWIP</h1>
-                        <p class="text-[10px] text-gray-500 font-medium uppercase tracking-wider hidden sm:block">Sistem Manajemen Stok Jalur</p>
+                        <p class="text-[10px] text-gray-500 font-medium uppercase tracking-wider hidden sm:block">Cloud Stock Management</p>
                     </div>
                 </div>
                 
                 <div class="flex items-center gap-2 sm:gap-3">
                     <div class="hidden md:flex flex-col items-end border-r border-gray-200 pr-4 mr-1">
                         <span id="header-user-info" class="text-sm font-semibold text-gray-700">PT. Mayora Indah</span>
-                        <span id="header-sync-status" class="text-[10px] text-green-600 font-bold flex items-center transition-colors duration-300">
-                            <span class="w-2 h-2 rounded-full bg-green-500 mr-1 shadow-[0_0_5px_rgba(34,197,94,0.5)]"></span> Online
+                        <span id="header-sync-status" class="text-[10px] text-green-600 font-bold flex items-center">
+                            <span class="w-2 h-2 rounded-full bg-green-500 mr-1"></span> Terhubung
                         </span>
                     </div>
                     
-                    <button id="refresh-btn" onclick="refreshData()" title="Sinkronasi Data" class="btn-modern w-10 h-10 flex items-center justify-center bg-white border border-gray-200 text-blue-600 hover:bg-blue-50 hover:border-blue-300 hover:text-blue-700 rounded-xl shadow-sm transition-all focus:ring-2 focus:ring-blue-500/20 group">
-                        <i id="refresh-icon" class="fas fa-sync-alt text-lg group-hover:rotate-180 transition-transform duration-500"></i>
+                    <button id="refresh-btn" onclick="refreshData()" title="Muat Ulang Data Server" class="btn-modern w-10 h-10 flex items-center justify-center bg-white border border-gray-200 text-blue-600 hover:bg-blue-50 hover:border-blue-300 hover:text-blue-700 rounded-xl shadow-sm">
+                        <i id="refresh-icon" class="fas fa-sync-alt text-lg"></i>
                     </button>
                     
-                    <button onclick="logout()" title="Keluar Aplikasi" class="btn-modern w-10 h-10 flex items-center justify-center bg-white border border-gray-200 text-red-500 hover:bg-red-50 hover:border-red-300 hover:text-red-600 rounded-xl shadow-sm transition-all focus:ring-2 focus:ring-red-500/20 group">
-                        <i class="fas fa-power-off text-lg group-hover:scale-110 transition-transform duration-300"></i>
+                    <button onclick="logout()" title="Keluar" class="btn-modern w-10 h-10 flex items-center justify-center bg-white border border-gray-200 text-red-500 hover:bg-red-50 hover:border-red-300 hover:text-red-600 rounded-xl shadow-sm">
+                        <i class="fas fa-power-off text-lg"></i>
                     </button>
                 </div>
             </div>
@@ -275,17 +259,17 @@
 
         <div class="bg-white border-b border-gray-200 no-print nav-tabs z-10 shrink-0">
             <div class="max-w-7xl mx-auto flex overflow-x-auto px-4 gap-2 pt-2 hide-scrollbar">
-                <button onclick="switchTab('in')" id="tab-btn-in" class="px-5 py-3 font-semibold text-sm border-b-2 border-blue-600 text-blue-700 flex items-center whitespace-nowrap rounded-t-lg bg-blue-50/50 transition-colors">
+                <button onclick="switchTab('in')" id="tab-btn-in" class="px-5 py-3 font-semibold text-sm border-b-2 border-blue-600 text-blue-700 flex items-center whitespace-nowrap rounded-t-lg bg-blue-50/50">
                     <div class="w-6 h-6 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center mr-2"><i class="fas fa-arrow-down text-xs"></i></div> Kedatangan
                 </button>
-                <button onclick="switchTab('out')" id="tab-btn-out" class="px-5 py-3 font-semibold text-sm border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-50 flex items-center whitespace-nowrap rounded-t-lg transition-colors">
-                    <div class="w-6 h-6 rounded-full bg-gray-100 text-gray-500 flex items-center justify-center mr-2 transition-colors"><i class="fas fa-arrow-up text-xs"></i></div> Pengambilan
+                <button onclick="switchTab('out')" id="tab-btn-out" class="px-5 py-3 font-semibold text-sm border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-50 flex items-center whitespace-nowrap rounded-t-lg">
+                    <div class="w-6 h-6 rounded-full bg-gray-100 text-gray-500 flex items-center justify-center mr-2"><i class="fas fa-arrow-up text-xs"></i></div> Pengambilan
                 </button>
-                <button onclick="switchTab('rekap')" id="tab-btn-rekap" class="px-5 py-3 font-semibold text-sm border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-50 flex items-center whitespace-nowrap rounded-t-lg transition-colors">
-                    <div class="w-6 h-6 rounded-full bg-gray-100 text-gray-500 flex items-center justify-center mr-2 transition-colors"><i class="fas fa-clipboard-list text-xs"></i></div> Rekap Stok
+                <button onclick="switchTab('rekap')" id="tab-btn-rekap" class="px-5 py-3 font-semibold text-sm border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-50 flex items-center whitespace-nowrap rounded-t-lg">
+                    <div class="w-6 h-6 rounded-full bg-gray-100 text-gray-500 flex items-center justify-center mr-2"><i class="fas fa-clipboard-list text-xs"></i></div> Rekap Stok
                 </button>
-                <button onclick="switchTab('print')" id="tab-btn-print" class="px-5 py-3 font-semibold text-sm border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-50 flex items-center whitespace-nowrap rounded-t-lg transition-colors">
-                    <div class="w-6 h-6 rounded-full bg-gray-100 text-gray-500 flex items-center justify-center mr-2 transition-colors"><i class="fas fa-print text-xs"></i></div> Cetak Dokumen
+                <button onclick="switchTab('print')" id="tab-btn-print" class="px-5 py-3 font-semibold text-sm border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-50 flex items-center whitespace-nowrap rounded-t-lg">
+                    <div class="w-6 h-6 rounded-full bg-gray-100 text-gray-500 flex items-center justify-center mr-2"><i class="fas fa-print text-xs"></i></div> Cetak Dokumen
                 </button>
             </div>
         </div>
@@ -297,12 +281,10 @@
                     <div class="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-blue-400 to-green-400"></div>
                     
                     <div class="mb-8 flex items-center gap-4">
-                        <div class="w-12 h-12 rounded-xl bg-blue-100 flex items-center justify-center text-blue-600 text-xl shadow-inner shrink-0">
-                            <i class="fas fa-box-open"></i>
-                        </div>
+                        <div class="w-12 h-12 rounded-xl bg-blue-100 flex items-center justify-center text-blue-600 text-xl shadow-inner shrink-0"><i class="fas fa-box-open"></i></div>
                         <div>
                             <h2 class="text-xl sm:text-2xl font-bold text-gray-800">Form Kedatangan Material</h2>
-                            <p class="text-gray-500 text-xs sm:text-sm mt-1">Sistem tersinkronisasi cepat tanpa lag.</p>
+                            <p class="text-gray-500 text-xs sm:text-sm mt-1">Data langsung dikirim ke Spreadsheet saat disave.</p>
                         </div>
                     </div>
 
@@ -311,14 +293,13 @@
                             <div class="form-group mb-0 relative">
                                 <label class="form-label text-blue-800"><i class="fas fa-search mr-1"></i> Cari Material</label>
                                 <div class="relative group">
-                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-blue-400 group-focus-within:text-blue-600 transition-colors"><i class="fas fa-search"></i></div>
-                                    <input type="text" id="in-material-display" class="form-input pl-10 pr-10 border-blue-200 focus:border-blue-500 focus:ring-blue-500 bg-white shadow-sm font-semibold text-gray-700" placeholder="Ketik nama material..." autocomplete="off">
+                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-blue-400"><i class="fas fa-search"></i></div>
+                                    <input type="text" id="in-material-display" class="form-input pl-10 pr-10 border-blue-200 focus:border-blue-500 bg-white shadow-sm font-semibold text-gray-700" placeholder="Ketik nama material..." autocomplete="off">
                                     <input type="hidden" id="in-material-value" required>
                                     
-                                    <button type="button" onclick="clearInMaterial()" id="btn-clear-in-mat" class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-red-500 hidden transition-colors cursor-pointer" title="Ganti Material">
+                                    <button type="button" onclick="clearInMaterial()" id="btn-clear-in-mat" class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-red-500 hidden cursor-pointer">
                                         <i class="fas fa-times-circle text-lg"></i>
                                     </button>
-
                                     <ul id="in-material-list" class="autocomplete-list"></ul>
                                 </div>
                             </div>
@@ -326,7 +307,7 @@
                                 <label class="form-label text-gray-600">Kode Barang (Otomatis)</label>
                                 <div class="relative">
                                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400"><i class="fas fa-barcode"></i></div>
-                                    <input type="text" id="in-kode" class="form-input pl-10 bg-gray-100 text-gray-600 font-mono font-bold border-gray-200 shadow-inner" disabled placeholder="Pilih material terlebih dahulu">
+                                    <input type="text" id="in-kode" class="form-input pl-10 bg-gray-100 text-gray-600 font-mono font-bold border-gray-200" disabled placeholder="Pilih material terlebih dahulu">
                                 </div>
                             </div>
                         </div>
@@ -346,7 +327,6 @@
                                 <label class="form-label">Tanggal Expired</label>
                                 <input type="date" id="in-exp" class="form-input shadow-sm" required>
                             </div>
-                            
                             <div class="form-group">
                                 <label class="form-label">Jumlah (Qty)</label>
                                 <div class="relative">
@@ -354,17 +334,15 @@
                                     <div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none text-gray-400 font-semibold">KG</div>
                                 </div>
                             </div>
-                            
                             <div class="form-group md:col-span-2">
                                 <label class="form-label">Supplier / Pemasok</label>
                                 <div class="relative group">
-                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400 group-focus-within:text-blue-500"><i class="fas fa-truck"></i></div>
+                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400"><i class="fas fa-truck"></i></div>
                                     <input type="text" id="in-supplier-display" class="form-input shadow-sm pl-10" placeholder="Pilih atau ketik supplier baru..." autocomplete="off" required>
                                     <input type="hidden" id="in-supplier-value">
                                     <ul id="in-supplier-list" class="autocomplete-list"></ul>
                                 </div>
                             </div>
-                            
                             <div class="form-group md:col-span-3">
                                 <label class="form-label">Keterangan Tambahan (Opsional)</label>
                                 <div class="relative">
@@ -377,8 +355,8 @@
                             <button type="button" onclick="resetFormKedatangan()" class="btn-modern w-full sm:w-auto px-6 py-2.5 text-gray-600 bg-white border border-gray-300 hover:bg-gray-50 rounded-xl font-medium shadow-sm flex items-center justify-center">
                                 <i class="fas fa-undo mr-2 text-gray-400"></i> Reset
                             </button>
-                            <button id="btn-submit-in" type="submit" class="btn-modern w-full sm:w-auto px-8 py-2.5 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-bold rounded-xl shadow-lg shadow-blue-500/30 flex items-center justify-center transition-all">
-                                <i class="fas fa-bolt mr-2 text-yellow-300"></i> Simpan Cepat
+                            <button id="btn-submit-in" type="submit" class="btn-modern w-full sm:w-auto px-8 py-2.5 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-bold rounded-xl shadow-lg flex items-center justify-center transition-all">
+                                <i class="fas fa-cloud-upload-alt mr-2"></i> Simpan ke Server
                             </button>
                         </div>
                     </form>
@@ -390,12 +368,10 @@
                     <div class="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-orange-400 to-red-500"></div>
                     
                     <div class="mb-8 flex items-center gap-4">
-                        <div class="w-12 h-12 rounded-xl bg-orange-100 flex items-center justify-center text-orange-600 text-xl shadow-inner shrink-0">
-                            <i class="fas fa-dolly"></i>
-                        </div>
+                        <div class="w-12 h-12 rounded-xl bg-orange-100 flex items-center justify-center text-orange-600 text-xl shadow-inner shrink-0"><i class="fas fa-dolly"></i></div>
                         <div>
                             <h2 class="text-xl sm:text-2xl font-bold text-gray-800">Form Pengambilan Material</h2>
-                            <p class="text-gray-500 text-xs sm:text-sm mt-1">Pemotongan stok langsung ter-update di layar.</p>
+                            <p class="text-gray-500 text-xs sm:text-sm mt-1">Pemotongan stok tervalidasi langsung di Spreadsheet.</p>
                         </div>
                     </div>
 
@@ -404,21 +380,20 @@
                             <div class="form-group mb-0">
                                 <label class="form-label text-orange-800"><i class="fas fa-search mr-1"></i> 1. Cari Material</label>
                                 <div class="relative group">
-                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-orange-400 group-focus-within:text-orange-600"><i class="fas fa-search"></i></div>
-                                    <input type="text" id="out-material-display" class="form-input pl-10 pr-10 border-orange-200 focus:border-orange-500 focus:ring-orange-500 bg-white shadow-sm font-semibold text-gray-700" placeholder="Ketik nama material..." autocomplete="off">
+                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-orange-400"><i class="fas fa-search"></i></div>
+                                    <input type="text" id="out-material-display" class="form-input pl-10 pr-10 border-orange-200 focus:border-orange-500 bg-white shadow-sm font-semibold text-gray-700" placeholder="Ketik nama material..." autocomplete="off">
                                     <input type="hidden" id="out-material-value">
                                     
-                                    <button type="button" onclick="clearOutMaterial()" id="btn-clear-out-mat" class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-red-500 hidden transition-colors cursor-pointer" title="Ganti Material">
+                                    <button type="button" onclick="clearOutMaterial()" id="btn-clear-out-mat" class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-red-500 hidden cursor-pointer">
                                         <i class="fas fa-times-circle text-lg"></i>
                                     </button>
-
                                     <ul id="out-material-list" class="autocomplete-list"></ul>
                                 </div>
                             </div>
                             <div class="form-group mb-0">
-                                <label class="form-label text-orange-800"><i class="fas fa-boxes mr-1"></i> 2. Pilih Batch (Otomatis FIFO)</label>
+                                <label class="form-label text-orange-800"><i class="fas fa-boxes mr-1"></i> 2. Pilih Batch (FIFO)</label>
                                 <div class="relative">
-                                    <select id="out-batch" class="form-input shadow-sm bg-white border-orange-200 focus:border-orange-500 focus:ring-orange-500 font-medium" required disabled onchange="onOutBatchChange()">
+                                    <select id="out-batch" class="form-input shadow-sm bg-white border-orange-200 focus:border-orange-500 font-medium" required disabled onchange="onOutBatchChange()">
                                         <option value="">-- Menunggu Material --</option>
                                     </select>
                                 </div>
@@ -427,7 +402,7 @@
                         <div id="out-stock-info" class="mt-4 hidden animate-[slideDown_0.3s_ease-out]">
                             <div class="inline-flex items-center bg-white px-4 py-2 rounded-lg border border-orange-200 shadow-sm">
                                 <span class="text-sm font-semibold text-gray-600 mr-3">Sisa Stok Batch ini:</span>
-                                <span class="bg-orange-100 text-orange-700 px-3 py-1 rounded text-lg font-bold font-mono tracking-wider"><span id="out-sisa-label">0</span> <span class="text-sm">KG</span></span>
+                                <span class="bg-orange-100 text-orange-700 px-3 py-1 rounded text-lg font-bold font-mono"><span id="out-sisa-label">0</span> <span class="text-sm">KG</span></span>
                             </div>
                         </div>
                     </div>
@@ -449,24 +424,22 @@
                                         <option value="2">Shift 2 (Sore)</option>
                                         <option value="3">Shift 3 (Malam)</option>
                                     </select>
-                                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
-                                        <i class="fas fa-chevron-down text-sm"></i>
-                                    </div>
+                                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500"><i class="fas fa-chevron-down text-sm"></i></div>
                                 </div>
                             </div>
 
                             <div class="form-group mb-0">
                                 <label class="form-label text-red-600 font-bold">Jumlah Diambil</label>
                                 <div class="relative">
-                                    <input type="number" id="out-qty" class="form-input shadow-sm pl-4 pr-12 font-bold text-xl text-red-600 border-red-200 focus:border-red-500 focus:ring-red-500" required min="0.01" step="0.01" placeholder="0.00">
+                                    <input type="number" id="out-qty" class="form-input shadow-sm pl-4 pr-12 font-bold text-xl text-red-600 border-red-200 focus:border-red-500" required min="0.01" step="0.01" placeholder="0.00">
                                     <div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none text-red-400 font-semibold">KG</div>
                                 </div>
                             </div>
                         </div>
                         
                         <div class="mt-8 flex justify-end w-full gap-3">
-                            <button id="btn-submit-out" type="submit" class="btn-modern w-full sm:w-auto justify-center px-8 py-3 bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 text-white font-bold rounded-xl shadow-lg shadow-red-500/30 flex items-center text-lg transition-all">
-                                <i class="fas fa-bolt mr-2 text-yellow-300"></i> Potong Cepat
+                            <button id="btn-submit-out" type="submit" class="btn-modern w-full sm:w-auto justify-center px-8 py-3 bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 text-white font-bold rounded-xl shadow-lg flex items-center text-lg transition-all">
+                                <i class="fas fa-cloud-upload-alt mr-2"></i> Potong & Validasi Server
                             </button>
                         </div>
                     </form>
@@ -479,34 +452,23 @@
                     
                     <div class="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                         <div class="flex items-center gap-4">
-                            <div class="w-12 h-12 rounded-xl bg-slate-100 flex items-center justify-center text-slate-600 text-xl shadow-inner shrink-0 border border-slate-200">
-                                <i class="fas fa-clipboard-list"></i>
-                            </div>
+                            <div class="w-12 h-12 rounded-xl bg-slate-100 flex items-center justify-center text-slate-600 text-xl shadow-inner shrink-0 border border-slate-200"><i class="fas fa-clipboard-list"></i></div>
                             <div>
                                 <h2 class="text-xl sm:text-2xl font-bold text-gray-800">Rekap Stok Akhir</h2>
-                                <p class="text-gray-500 text-xs sm:text-sm mt-1">Daftar sisa material berurutan, stok habis di bawah.</p>
+                                <p class="text-gray-500 text-xs sm:text-sm mt-1">Data Real-Time dari Server.</p>
                             </div>
                         </div>
-                        
-                        <!-- Kolom Pencarian Rekap & Tombol WA (Diperbarui) -->
                         <div class="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
                             <div class="w-full sm:w-64 relative">
-                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
-                                    <i class="fas fa-search"></i>
-                                </div>
-                                <input type="text" id="rekap-search" onkeyup="filterRekap()" class="form-input pl-10 py-2 text-sm bg-white border-gray-200 rounded-xl focus:border-slate-400 focus:ring-slate-400" placeholder="Cari material/supplier...">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400"><i class="fas fa-search"></i></div>
+                                <input type="text" id="rekap-search" onkeyup="filterRekap()" class="form-input pl-10 py-2 text-sm bg-white border-gray-200 rounded-xl" placeholder="Cari material/supplier...">
                             </div>
-                            
-                            <button onclick="shareToWhatsApp()" class="btn-modern w-full sm:w-auto px-4 py-2 bg-[#25D366] hover:bg-[#128C7E] text-white font-medium rounded-xl shadow-sm flex items-center justify-center transition-colors" title="Bagikan rekap stok ke WhatsApp">
+                            <button onclick="shareToWhatsApp()" class="btn-modern w-full sm:w-auto px-4 py-2 bg-[#25D366] hover:bg-[#128C7E] text-white font-medium rounded-xl shadow-sm flex items-center justify-center transition-colors">
                                 <i class="fab fa-whatsapp mr-2 text-lg"></i> Share WA
                             </button>
                         </div>
                     </div>
-
-                    <!-- Wadah List Rekap -->
-                    <div id="rekap-list-container" class="space-y-3 flex-1 overflow-y-auto pr-1 pb-4">
-                        <!-- Data akan di-render di sini via JS -->
-                    </div>
+                    <div id="rekap-list-container" class="space-y-3 flex-1 overflow-y-auto pr-1 pb-4"></div>
                 </div>
             </div>
 
@@ -518,11 +480,9 @@
                             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400"><i class="fas fa-search"></i></div>
                             <input type="text" id="print-material-display" class="form-input pl-10 pr-10 shadow-sm" placeholder="Ketik nama material..." autocomplete="off">
                             <input type="hidden" id="print-material-value">
-                            
-                            <button type="button" onclick="clearPrintMaterial()" id="btn-clear-print-mat" class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-red-500 hidden transition-colors cursor-pointer" title="Ganti Material">
+                            <button type="button" onclick="clearPrintMaterial()" id="btn-clear-print-mat" class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-red-500 hidden cursor-pointer">
                                 <i class="fas fa-times-circle text-lg"></i>
                             </button>
-
                             <ul id="print-material-list" class="autocomplete-list"></ul>
                         </div>
                     </div>
@@ -531,20 +491,16 @@
                         <input type="month" id="print-bulan" class="form-input shadow-sm bg-white" onchange="renderPrintPreview()">
                     </div>
                     <div class="flex-1 flex justify-end w-full md:w-auto mt-2 md:mt-0">
-                        <button onclick="window.print()" id="btn-print" disabled class="btn-modern px-6 py-2.5 w-full md:w-auto justify-center bg-gray-800 disabled:bg-gray-300 disabled:text-gray-500 disabled:cursor-not-allowed hover:bg-black text-white font-bold rounded-lg shadow transition flex items-center">
+                        <button onclick="window.print()" id="btn-print" disabled class="btn-modern px-6 py-2.5 w-full md:w-auto justify-center bg-gray-800 disabled:bg-gray-300 disabled:text-gray-500 hover:bg-black text-white font-bold rounded-lg shadow flex items-center">
                             <i class="fas fa-print mr-2"></i> Cetak Dokumen
                         </button>
                     </div>
                 </div>
-
-                <div id="print-workspace" class="print-workspace">
-                    <!-- Pages generated via JS -->
-                </div>
+                <div id="print-workspace" class="print-workspace"></div>
             </div>
         </main>
     </div>
 
-    <!-- Container untuk Modern Toast Notification -->
     <div id="toast-container" class="fixed top-5 right-5 sm:right-6 z-[300] flex flex-col gap-3 pointer-events-none"></div>
 
     <script>
@@ -553,64 +509,7 @@
 
         let dbMaterials = [];
         let stateBatches = [];
-        let currentUserRole = 'User'; // Variabel untuk menyimpan role user yang aktif
-        
-        // Peningkatan Responsivitas: Variabel Pemuatan Latar Belakang (Silent Fetch)
-        let isDataPrefetched = false;
-        let prefetchSuccess = false;
-        let isDummyUsed = false;
-        let prefetchPromise = null;
-
-        function startSilentPrefetch() {
-            if (SCRIPT_URL && SCRIPT_URL.startsWith('http')) {
-                prefetchPromise = fetch(`${SCRIPT_URL}?action=getAppData`)
-                    .then(async response => {
-                        const text = await response.text();
-                        try {
-                            return JSON.parse(text);
-                        } catch (err) {
-                            throw new Error("HTML_RESPONSE"); 
-                        }
-                    })
-                    .then(data => {
-                        dbMaterials = data.materials || [];
-                        stateBatches = data.batches || [];
-                        isDataPrefetched = true;
-                        prefetchSuccess = true;
-                        isDummyUsed = false;
-                    })
-                    .catch(e => {
-                        setupDummyData();
-                        isDataPrefetched = true;
-                        prefetchSuccess = false;
-                        isDummyUsed = true;
-                    });
-            } else {
-                setupDummyData();
-                isDataPrefetched = true;
-                prefetchSuccess = true;
-                isDummyUsed = true;
-                prefetchPromise = Promise.resolve();
-            }
-        }
-        
-        function setupDummyData() {
-            if (dbMaterials.length === 0) {
-                dbMaterials = [
-                    {id: 'M001', name: 'Tepung Terigu Segitiga', code: 'TPG-001', suppliers: ['BOGASARI', 'INDOFOOD']},
-                    {id: 'M002', name: 'Gula Pasir Rafinasi', code: 'GLP-002', suppliers: ['GULAKU', 'PABRIK GULA X']},
-                    {id: 'M003', name: 'Minyak Goreng Sawit', code: 'MYK-003', suppliers: ['BIMOLI', 'FILMA']}
-                ];
-                stateBatches = [
-                    {id: 'B1', materialId: 'M001', batch: 'BATCH-A', tglMasuk: '2023-10-01', tglExp: '2024-10-01', jumlahAwal: 500, supplier: 'BOGASARI', keterangan: '-', withdrawals: [{shift: '02/S1', qty: 100, sisa: 400}]},
-                    {id: 'B2', materialId: 'M001', batch: 'BATCH-B', tglMasuk: '2023-10-15', tglExp: '2024-10-15', jumlahAwal: 300, supplier: 'INDOFOOD', keterangan: '-', withdrawals: []},
-                    {id: 'B3', materialId: 'M002', batch: 'BATCH-G', tglMasuk: '2023-10-10', tglExp: '2025-01-01', jumlahAwal: 1000, supplier: 'GULAKU', keterangan: 'Truk Plat B', withdrawals: [{shift: '11/S2', qty: 1000, sisa: 0}]},
-                    {id: 'B4', materialId: 'M002', batch: 'BATCH-H', tglMasuk: '2023-10-20', tglExp: '2025-02-01', jumlahAwal: 800, supplier: 'PABRIK GULA X', keterangan: '-', withdrawals: [{shift: '21/S3', qty: 300, sisa: 500}]}
-                ];
-            }
-        }
-
-        startSilentPrefetch();
+        let currentUserRole = 'User'; 
 
         function formatTgl(dateStr) {
             if(!dateStr) return '';
@@ -621,6 +520,12 @@
         function formatShiftDisplay(rawShift) {
             if (!rawShift) return '';
             let str = String(rawShift).trim();
+            
+            // Logika baca timestamp (Pisahkan YYYY-MM-DD tersembunyi dengan format aslinya)
+            if (str.includes('|')) {
+                str = str.split('|')[1];
+            }
+
             if (str.length > 20 && (str.includes('GMT') || str.includes('T00:00:00'))) {
                 let d = new Date(str);
                 if (!isNaN(d.getTime())) {
@@ -727,7 +632,7 @@
                 });
                 
                 if(filteredData.length > 50) {
-                     listHtml += `<li class="p-2 text-gray-400 text-xs italic text-center border-t bg-gray-50">+ ${filteredData.length - 50} item lainnya. Ketik untuk memfilter.</li>`;
+                     listHtml += `<li class="p-2 text-gray-400 text-xs italic text-center border-t bg-gray-50">+ ${filteredData.length - 50} item lainnya.</li>`;
                 }
                 list.innerHTML = listHtml;
             }
@@ -816,95 +721,95 @@
         }
 
         async function fetchDataFromServer(isRefresh = false) {
+            const loader = document.getElementById('global-loader');
+            const loaderContent = document.getElementById('loader-content');
+            const btn = document.getElementById('refresh-btn');
+            const icon = document.getElementById('refresh-icon');
+            const syncStatus = document.getElementById('header-sync-status');
+
+            if (!SCRIPT_URL || !SCRIPT_URL.startsWith('http')) {
+                showBlockingError("URL Spreadsheet belum disetting di kode aplikasi.");
+                return;
+            }
+
             if (!isRefresh) {
-                const loader = document.getElementById('global-loader');
-                
-                const processData = () => {
-                    updateUIAfterDataLoad();
-                    finishLoading(isRefresh, prefetchSuccess, isDummyUsed);
-                };
-
-                if (isDataPrefetched) {
-                    processData();
-                } else {
-                    loader.style.display = 'flex';
-                    setTimeout(() => loader.classList.remove('opacity-0'), 10);
-                    if (prefetchPromise) {
-                        await prefetchPromise;
-                        processData();
-                    } else {
-                        startSilentPrefetch();
-                        await prefetchPromise;
-                        processData();
-                    }
-                }
+                loader.style.display = 'flex';
+                loaderContent.innerHTML = `
+                    <div class="w-12 h-12 border-4 border-blue-200 border-t-blue-600 rounded-full loader-spin mb-3"></div>
+                    <p class="font-semibold text-blue-800 animate-pulse text-lg">Mengambil Data Server...</p>
+                    <p class="text-xs text-blue-500 mt-2">Wajib terkoneksi internet</p>
+                `;
             } else {
-                const syncStatus = document.getElementById('header-sync-status');
-                syncStatus.innerHTML = '<span class="w-2 h-2 rounded-full bg-blue-500 mr-1 shadow-[0_0_5px_rgba(59,130,246,0.5)] animate-pulse"></span> Menyinkronkan...';
-                syncStatus.className = "text-[10px] text-blue-600 font-bold flex items-center transition-colors duration-300";
+                btn.disabled = true;
+                icon.classList.add('fa-spin');
+                syncStatus.innerHTML = '<span class="w-2 h-2 rounded-full bg-blue-500 mr-1 animate-pulse"></span> Menyinkronkan...';
+                syncStatus.className = "text-[10px] text-blue-600 font-bold flex items-center";
+            }
 
-                fetch(`${SCRIPT_URL}?action=getAppData`)
-                    .then(async response => {
-                        const text = await response.text();
-                        try { return JSON.parse(text); } catch (err) { throw new Error("HTML_RESPONSE"); }
-                    })
-                    .then(data => {
-                        dbMaterials = data.materials || [];
-                        stateBatches = data.batches || [];
-                        updateUIAfterDataLoad();
-                        finishLoading(isRefresh, true, false);
-                    })
-                    .catch(e => {
-                        console.warn("Refresh gagal, menggunakan data terakhir yang ada.");
-                        finishLoading(isRefresh, false, false);
-                    });
+            try {
+                const response = await fetch(`${SCRIPT_URL}?action=getAppData`);
+                if (!response.ok) throw new Error("Gagal HTTP Request");
+                const text = await response.text();
+                let data;
+                try {
+                    data = JSON.parse(text);
+                } catch (err) {
+                    throw new Error("Format respon server tidak sesuai (Bukan JSON). Pastikan URL Web App benar.");
+                }
+
+                dbMaterials = data.materials || [];
+                stateBatches = data.batches || [];
+                
+                updateUIAfterDataLoad();
+                
+                if (btn) btn.disabled = false;
+                if (icon) icon.classList.remove('fa-spin');
+                if (!isRefresh) {
+                    loader.classList.add('opacity-0');
+                    setTimeout(() => {
+                        loader.style.display = 'none';
+                        loader.classList.remove('flex');
+                        loader.classList.remove('opacity-0');
+                    }, 300);
+                }
+
+                syncStatus.innerHTML = '<span class="w-2 h-2 rounded-full bg-green-500 mr-1 shadow-[0_0_5px_rgba(34,197,94,0.5)]"></span> Terhubung';
+                syncStatus.className = "text-[10px] text-green-600 font-bold flex items-center";
+                if(isRefresh) showToast('Sinkronisasi Sukses', 'Data terbaru berhasil ditarik dari server.', 'success');
+
+            } catch (error) {
+                console.error("Fetch Error:", error);
+                if (btn) btn.disabled = false;
+                if (icon) icon.classList.remove('fa-spin');
+                
+                syncStatus.innerHTML = '<span class="w-2 h-2 rounded-full bg-red-500 mr-1 shadow-[0_0_5px_rgba(239,68,68,0.5)]"></span> Terputus';
+                syncStatus.className = "text-[10px] text-red-600 font-bold flex items-center";
+
+                if (!isRefresh) {
+                    showBlockingError(error.message);
+                } else {
+                    showToast('Koneksi Error', 'Gagal menghubungi Spreadsheet. Periksa koneksi internet.', 'error');
+                }
             }
         }
 
-        function finishLoading(isRefresh, success, isDummy = false) {
-            const btn = document.getElementById('refresh-btn');
-            const icon = document.getElementById('refresh-icon');
-            btn.disabled = false;
-            icon.classList.remove('fa-spin');
-
-            const syncStatus = document.getElementById('header-sync-status');
-            
-            if (!isRefresh) {
-                const loader = document.getElementById('global-loader');
-                loader.classList.add('opacity-0');
-                setTimeout(() => {
-                    loader.style.display = 'none';
-                    loader.classList.remove('flex');
-                }, 300);
-            }
-
-            if(success) {
-                syncStatus.innerHTML = '<span class="w-2 h-2 rounded-full bg-green-500 mr-1 shadow-[0_0_5px_rgba(34,197,94,0.5)]"></span> Tersinkron';
-                syncStatus.className = "text-[10px] text-green-600 font-bold flex items-center transition-colors duration-300";
-                if(isRefresh) showToast('Sinkronisasi Sukses', 'Data terbaru berhasil ditarik dari server.', 'success');
-                
-                setTimeout(() => {
-                    if(syncStatus.innerText.includes('Tersinkron')) {
-                        syncStatus.innerHTML = '<span class="w-2 h-2 rounded-full bg-green-500 mr-1"></span> Online';
-                    }
-                }, 3000);
-            } else {
-                if (isDummy) {
-                    syncStatus.innerHTML = '<span class="w-2 h-2 rounded-full bg-yellow-500 mr-1 shadow-[0_0_5px_rgba(234,179,8,0.5)]"></span> Mode Offline';
-                    syncStatus.className = "text-[10px] text-yellow-600 font-bold flex items-center transition-colors duration-300";
-                } else {
-                    syncStatus.innerHTML = '<span class="w-2 h-2 rounded-full bg-red-500 mr-1 shadow-[0_0_5px_rgba(239,68,68,0.5)]"></span> Error API';
-                    syncStatus.className = "text-[10px] text-red-600 font-bold flex items-center transition-colors duration-300";
-                    if(isRefresh) showToast('Koneksi Error', 'Gagal menyinkronkan data dari Spreadsheet.', 'error');
-                }
-            }
+        function showBlockingError(msg) {
+            const loader = document.getElementById('global-loader');
+            const loaderContent = document.getElementById('loader-content');
+            loader.style.display = 'flex';
+            loaderContent.innerHTML = `
+                <div class="flex flex-col items-center p-8 bg-white rounded-2xl shadow-2xl max-w-sm text-center mx-4">
+                    <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mb-4">
+                        <i class="fas fa-wifi text-red-500 text-3xl"></i>
+                    </div>
+                    <h3 class="font-bold text-gray-800 text-xl mb-2">Akses Terputus</h3>
+                    <p class="text-gray-500 text-sm mb-6">Aplikasi wajib terhubung dengan Spreadsheet.<br><span class="text-xs text-red-500 block mt-2">${msg}</span></p>
+                    <button onclick="location.reload()" class="px-8 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-xl transition shadow-lg w-full">Coba Hubungkan Ulang</button>
+                </div>
+            `;
         }
 
         function refreshData() {
-            const btn = document.getElementById('refresh-btn');
-            const icon = document.getElementById('refresh-icon');
-            btn.disabled = true;
-            icon.classList.add('fa-spin');
             fetchDataFromServer(true);
         }
 
@@ -974,7 +879,7 @@
             });
 
             if(!hasActiveBatch) {
-                batchSelect.innerHTML = '<option value="">-- Stok Habis / Kartu Penuh --</option>';
+                batchSelect.innerHTML = '<option value="">-- Stok Habis --</option>';
                 batchSelect.disabled = true;
                 form.classList.add('opacity-50', 'pointer-events-none', 'translate-y-4');
                 form.classList.remove('translate-y-0');
@@ -1006,6 +911,12 @@
             const supplierVal = document.getElementById('in-supplier-display').value;
             if(!matId || !supplierVal) return showToast('Peringatan', 'Harap lengkapi Form', 'error');
 
+            const btnSubmit = document.getElementById('btn-submit-in');
+            const originalHTML = btnSubmit.innerHTML;
+            
+            btnSubmit.disabled = true;
+            btnSubmit.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Mengirim ke Server...';
+
             const newBatch = {
                 id: 'B_' + Date.now(),
                 materialId: matId,
@@ -1018,41 +929,34 @@
                 withdrawals: []
             };
 
-            stateBatches.push(newBatch);
-            
-            showToast('Tersimpan Lokal', `Stok Batch ${newBatch.batch} masuk dan disiapkan untuk sinkronisasi.`, 'success');
-            const form = document.getElementById('form-kedatangan');
-            form.reset();
-            document.getElementById('in-supplier-display').value = '';
-            document.getElementById('in-supplier-value').value = '';
-            document.getElementById('in-tgl').value = new Date().toISOString().split('T')[0];
-            renderPrintPreview(); 
+            const formData = new URLSearchParams();
+            formData.append('action', 'addKedatangan');
+            formData.append('data', JSON.stringify(newBatch));
 
-            if (SCRIPT_URL && SCRIPT_URL.startsWith('http')) {
-                const syncStatus = document.getElementById('header-sync-status');
-                syncStatus.innerHTML = '<span class="w-2 h-2 rounded-full bg-blue-500 mr-1 animate-pulse"></span> Menyimpan...';
-                
-                const formData = new URLSearchParams();
-                formData.append('action', 'addKedatangan');
-                formData.append('data', JSON.stringify(newBatch));
-
-                fetch(SCRIPT_URL, { method: 'POST', body: formData })
-                    .then(res => res.json())
-                    .then(data => {
-                        if (data.success) {
-                            syncStatus.innerHTML = '<span class="w-2 h-2 rounded-full bg-green-500 mr-1"></span> Tersimpan'; 
-                            showToast('Sukses Cloud', `Data Batch ${newBatch.batch} berhasil dibackup.`, 'info');
-                        } else throw new Error('API Reject');
-                    })
-                    .catch(e => {
-                        stateBatches = stateBatches.filter(b => b.id !== newBatch.id);
-                        showToast('Error Server', `Gagal mem-backup Batch ${newBatch.batch} ke Spreadsheet.`, 'error');
-                        syncStatus.innerHTML = '<span class="w-2 h-2 rounded-full bg-red-500 mr-1"></span> Error';
-                        renderPrintPreview();
-                    });
-            }
+            fetch(SCRIPT_URL, { method: 'POST', body: formData })
+                .then(res => {
+                    if(!res.ok) throw new Error("Gagal terkoneksi dengan Server");
+                    return res.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        stateBatches.push(newBatch);
+                        showToast('Tersimpan di Cloud', `Data Batch ${newBatch.batch} berhasil disimpan ke Spreadsheet.`, 'success');
+                        resetFormKedatangan();
+                    } else {
+                        throw new Error(data.message || 'Server menolak data.');
+                    }
+                })
+                .catch(e => {
+                    showToast('Gagal Menyimpan', `Koneksi gagal: ${e.message}`, 'error');
+                })
+                .finally(() => {
+                    btnSubmit.disabled = false;
+                    btnSubmit.innerHTML = originalHTML;
+                });
         }
 
+        // STRICT ONLINE SUBMIT PENGAMBILAN
         function submitPengambilan(e) {
             e.preventDefault();
             
@@ -1071,48 +975,53 @@
 
             const day = tglVal.split('-')[2];
             const shiftStr = `${day}/S${shiftSelect}`; 
+            const shiftWithDate = `${tglVal}|${shiftStr}`; // SIMPAN TANGGAL KESELURUHAN (TIMESTAMP)
             const sisaBaru = lastSisa - qty;
             
-            const newWithdrawal = { shift: shiftStr, qty: qty, sisa: sisaBaru };
-
-            batch.withdrawals.push(newWithdrawal);
+            const btnSubmit = document.getElementById('btn-submit-out');
+            const originalHTML = btnSubmit.innerHTML;
             
-            showToast('Berhasil Dipotong', `Sisa stok batch terpilih menjadi ${sisaBaru} KG.`, 'success');
-            document.getElementById('out-qty').value = ''; 
-            
-            const matVal = document.getElementById('out-material-value').value;
-            handleMaterialOutChange(matVal); 
-            
-            const batchSelect = document.getElementById('out-batch');
-            for(let i=0; i<batchSelect.options.length; i++) {
-                if(batchSelect.options[i].value === batchId) {
-                    batchSelect.selectedIndex = i; onOutBatchChange(); break;
-                }
-            }
+            btnSubmit.disabled = true;
+            btnSubmit.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Memvalidasi & Memotong...';
 
-            if (SCRIPT_URL && SCRIPT_URL.startsWith('http')) {
-                const syncStatus = document.getElementById('header-sync-status');
-                syncStatus.innerHTML = '<span class="w-2 h-2 rounded-full bg-orange-500 mr-1 animate-pulse"></span> Memotong...';
+            const formData = new URLSearchParams();
+            formData.append('action', 'addPengambilan');
+            formData.append('data', JSON.stringify({ batchId: batchId, shift: shiftWithDate, qty: qty, sisa: sisaBaru }));
 
-                const formData = new URLSearchParams();
-                formData.append('action', 'addPengambilan');
-                formData.append('data', JSON.stringify({ batchId: batchId, shift: shiftStr, qty: qty, sisa: sisaBaru }));
-
-                fetch(SCRIPT_URL, { method: 'POST', body: formData })
-                    .then(res => res.json())
-                    .then(data => {
-                        if(data.success) {
-                            syncStatus.innerHTML = '<span class="w-2 h-2 rounded-full bg-green-500 mr-1"></span> Tersimpan';
-                            showToast('Tersinkronisasi', 'Data potongan masuk ke laporan pusat.', 'info');
-                        } else throw new Error('API Reject');
-                    })
-                    .catch(e => {
-                        batch.withdrawals.pop(); 
-                        showToast('Gagal Sinkronisasi', 'Gagal memotong stok di server, data dibatalkan kembali.', 'error');
+            fetch(SCRIPT_URL, { method: 'POST', body: formData })
+                .then(res => {
+                    if(!res.ok) throw new Error("Gagal terkoneksi dengan Server");
+                    return res.json();
+                })
+                .then(data => {
+                    if(data.success) {
+                        // Hanya update lokal JIKA API merespons sukses
+                        const newWithdrawal = { shift: shiftWithDate, qty: qty, sisa: sisaBaru };
+                        batch.withdrawals.push(newWithdrawal);
+                        
+                        showToast('Tervalidasi & Dipotong', `Sisa stok batch di server menjadi ${sisaBaru} KG.`, 'success');
+                        document.getElementById('out-qty').value = ''; 
+                        
+                        const matVal = document.getElementById('out-material-value').value;
                         handleMaterialOutChange(matVal); 
-                        syncStatus.innerHTML = '<span class="w-2 h-2 rounded-full bg-red-500 mr-1"></span> Error';
-                    });
-            }
+                        
+                        const batchSelect = document.getElementById('out-batch');
+                        for(let i=0; i<batchSelect.options.length; i++) {
+                            if(batchSelect.options[i].value === batchId) {
+                                batchSelect.selectedIndex = i; onOutBatchChange(); break;
+                            }
+                        }
+                    } else {
+                        throw new Error(data.message || 'Server menolak pemotongan.');
+                    }
+                })
+                .catch(e => {
+                    showToast('Gagal Memotong', `Gagal koneksi ke server: ${e.message}`, 'error');
+                })
+                .finally(() => {
+                    btnSubmit.disabled = false;
+                    btnSubmit.innerHTML = originalHTML;
+                });
         }
 
         function renderRekapStok() {
@@ -1156,12 +1065,11 @@
                     return b.totalSisa - a.totalSisa; 
                 });
 
-                // Menyimpan data terbaru ke variabel global untuk dibagikan ke WA
                 window.latestRekapData = allRecaps;
 
                 let html = '';
                 if (allRecaps.length === 0) {
-                    html = '<div class="text-center text-gray-500 py-10 bg-white rounded-xl shadow-sm border border-gray-100">Belum ada data master material.</div>';
+                    html = '<div class="text-center text-gray-500 py-10 bg-white rounded-xl shadow-sm border border-gray-100">Data material kosong.</div>';
                 } else {
                     allRecaps.forEach(item => {
                         const isZero = item.totalSisa === 0;
@@ -1204,29 +1112,22 @@
                     });
                 }
                 container.innerHTML = html;
-                
                 filterRekap();
-            }, 300);
+            }, 50);
         }
 
         function filterRekap() {
             const input = document.getElementById('rekap-search').value.toLowerCase();
             const cards = document.querySelectorAll('.rekap-card');
-            
             cards.forEach(card => {
                 const searchData = card.getAttribute('data-search');
-                if (searchData.includes(input)) {
-                    card.style.display = 'flex';
-                } else {
-                    card.style.display = 'none';
-                }
+                card.style.display = searchData.includes(input) ? 'flex' : 'none';
             });
         }
 
-        // Fungsi Baru untuk Berbagi ke WhatsApp
         function shareToWhatsApp() {
             if (!window.latestRekapData || window.latestRekapData.length === 0) {
-                showToast('Info', 'Tidak ada data stok untuk dibagikan saat ini.', 'info');
+                showToast('Info', 'Tidak ada data stok untuk dibagikan.', 'info');
                 return;
             }
 
@@ -1248,14 +1149,11 @@
                 text += `\n`;
             });
 
-            text += `_Di-generate otomatis dari Sistem GWIP Connect_`;
-
-            // Encode string untuk URL dan buka tautan WhatsApp
-            const encodedText = encodeURIComponent(text);
-            const waUrl = `https://wa.me/?text=${encodedText}`;
-            window.open(waUrl, '_blank');
+            text += `_Sistem Online Real-Time_`;
+            window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
         }
 
+        // UPDATE INTI: Logika Time-Travel Cetak Dokumen (Bawa sisa stok bulan lalu)
         function renderPrintPreview() {
             const matId = document.getElementById('print-material-value').value;
             const bulan = document.getElementById('print-bulan').value; 
@@ -1276,9 +1174,84 @@
             const monthNames = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
             const bulanLabel = `${monthNames[parseInt(m)-1]} ${y}`;
 
-            const filteredBatches = stateBatches
-                .filter(b => b.materialId === matId && b.tglMasuk.startsWith(bulan))
-                .sort((a, b) => a.tglMasuk.localeCompare(b.tglMasuk));
+            const filteredBatches = [];
+
+            stateBatches.forEach(b => {
+                if (b.materialId !== matId) return;
+
+                let carryoverStock = b.jumlahAwal;
+                let targetMonthWithdrawals = [];
+                let hasActivityInTargetMonth = false;
+
+                // Variabel pelacak otomatis bulan untuk data lama (Legacy data tanpa timestamp)
+                let currentTrackedMonth = b.tglMasuk.substring(0, 7); // cth: "2026-09"
+                let lastTrackedDay = parseInt(b.tglMasuk.split('-')[2]); // cth: 24
+
+                b.withdrawals.forEach(w => {
+                    let wDate = b.tglMasuk; // Default
+                    
+                    // 1. Deteksi Timestamp Asli Backend (Jika Google Apps Script Anda dimodifikasi suatu hari)
+                    if (w.timestamp || w.tgl || w.waktu || w.date) {
+                        let rawTs = w.timestamp || w.tgl || w.waktu || w.date;
+                        try {
+                            let d = new Date(rawTs);
+                            if (!isNaN(d.getTime())) wDate = d.toISOString().split('T')[0];
+                        } catch(e) {}
+                    }
+                    // 2. Deteksi Timestamp Embed yang kita buat baru saja di form pengambilan
+                    else if (w.shift && String(w.shift).includes('|')) {
+                        wDate = String(w.shift).split('|')[0];
+                    }
+                    // 3. Smart Chronological Tracker (JIKA data benar-benar lama "24/S1")
+                    else if (w.shift) {
+                        let shiftStr = String(w.shift);
+                        let dayMatch = shiftStr.match(/^(\d{1,2})\//);
+                        if (dayMatch) {
+                            let day = parseInt(dayMatch[1]);
+                            
+                            // Deteksi lompatan bulan (Cth: Kemarin input tgl 24, sekarang input tgl 5)
+                            // Jika mundur jauh lebih dari 5 hari, anggap bulan telah berganti
+                            if (day < lastTrackedDay - 5) { 
+                                let [yy, mm] = currentTrackedMonth.split('-');
+                                let dateObj = new Date(parseInt(yy), parseInt(mm), 1); 
+                                currentTrackedMonth = dateObj.getFullYear() + '-' + String(dateObj.getMonth() + 1).padStart(2, '0');
+                            }
+                            
+                            lastTrackedDay = day;
+                            wDate = `${currentTrackedMonth}-${String(day).padStart(2, '0')}`;
+                        }
+                    }
+
+                    // Proses Penempatan Sisa Stok ke Bulan
+                    if (wDate < bulan + '-01') {
+                        // Jika terjadi SEBELUM bulan yang sedang dilihat -> Update Sisa (Carry-over)
+                        carryoverStock = w.sisa;
+                    } 
+                    else if (wDate.startsWith(bulan)) {
+                        // Jika terjadi DI DALAM bulan yang sedang dilihat -> Tampilkan
+                        targetMonthWithdrawals.push(w);
+                        hasActivityInTargetMonth = true;
+                    }
+                });
+
+                const isArrivedInTargetMonth = b.tglMasuk.startsWith(bulan);
+                const hasCarryover = carryoverStock > 0;
+
+                // Syarat tampil: Datang bulan ini ATAU Ada aktivitas bulan ini ATAU Masih ada sisa dari bulan lalu
+                if (isArrivedInTargetMonth || hasActivityInTargetMonth || (b.tglMasuk < bulan + '-01' && hasCarryover)) {
+                    let displayBatch = JSON.parse(JSON.stringify(b));
+                    
+                    if (!isArrivedInTargetMonth) {
+                        displayBatch.jumlahAwal = carryoverStock; // Ganti stok awal kedatangan dengan sisa bulan lalu
+                    }
+                    
+                    displayBatch.withdrawals = targetMonthWithdrawals;
+                    filteredBatches.push(displayBatch);
+                }
+            });
+
+            // Urutkan berdasarkan tanggal masuk
+            filteredBatches.sort((a, b) => a.tglMasuk.localeCompare(b.tglMasuk));
 
             let displayBlocks = [];
             filteredBatches.forEach(batch => {
@@ -1287,11 +1260,7 @@
                     displayBlocks.push({ batch: batch, startIndex: 0, isContinuation: false });
                 } else {
                     for (let i = 0; i < numWithdrawals; i += 8) {
-                        displayBlocks.push({
-                            batch: batch,
-                            startIndex: i,
-                            isContinuation: i > 0 
-                        });
+                        displayBlocks.push({ batch: batch, startIndex: i, isContinuation: i > 0 });
                     }
                 }
             });
@@ -1306,7 +1275,6 @@
                     allPagesHtml += generatePageHTML(mat.name, mat.code, bulanLabel, chunk);
                 }
             }
-            
             workspace.innerHTML = allPagesHtml; 
         }
         
@@ -1338,14 +1306,12 @@
                             </div>
                             <div></div>
                         </div>
-
                         <div class="flex flex-col text-[11px] font-bold w-1/2 mb-1 text-black">
                             <div class="flex items-end mb-0.5"><div class="w-32">NAMA BARANG</div><div>: <span class="inline-block min-w-[250px] uppercase px-1">${nama || ''}</span></div></div>
                             <div class="flex items-end mb-0.5"><div class="w-32">KODE BARANG</div><div>: <span class="inline-block min-w-[250px] uppercase px-1">${kode || ''}</span></div></div>
                             <div class="flex items-end"><div class="w-32">BULAN</div><div>: <span class="inline-block min-w-[250px] uppercase px-1">${bulan || ''}</span></div></div>
                         </div>
                     </div>
-
                     <div class="flex-grow flex flex-col my-1 min-h-0">
                         <table class="doc-table h-full">
                             <colgroup>
@@ -1364,7 +1330,6 @@
                             <tbody>${tbodyHtml}</tbody>
                         </table>
                     </div>
-
                     <div class="shrink-0 mt-2 flex justify-between w-full px-24 text-[11px] font-bold text-black">
                         <div class="text-center"><p>DIBUAT OLEH ;</p><div class="h-14 w-32 mx-auto mt-1"></div><p class="mt-1">OPERATOR GWIP</p></div>
                         <div class="text-center"><p>MENGETAHUI ;</p><div class="h-14 w-32 mx-auto mt-1"></div><p class="mt-1">UNIT HEAD</p></div>
@@ -1378,61 +1343,42 @@
             for(let j=0; j<8; j++) {
                 const w = batch.withdrawals[startIndex + j];
                 if(w) {
-                    let displayShift = formatShiftDisplay(w.shift);
-                    colsShift += `<td class="doc-text-center font-bold">${displayShift}</td>`;
+                    colsShift += `<td class="doc-text-center font-bold">${formatShiftDisplay(w.shift)}</td>`;
                     colsQty += `<td class="doc-text-center">${w.qty}</td>`;
                     colsSisa += `<td class="doc-text-center font-bold">${w.sisa}</td>`;
                 } else {
                     colsShift += `<td></td>`; colsQty += `<td></td>`; colsSisa += `<td></td>`;
                 }
             }
-
             if (isContinuation) {
-                return `
-                    <tr>
-                        <td rowspan="3"></td>
-                        <td rowspan="3"></td>
-                        <td rowspan="3"></td>
-                        <td rowspan="3"></td>
-                        <td rowspan="3"></td>
-                        <td class="doc-text-bold doc-text-center bg-gray-100 text-[8px]">TGL/SHIFT</td>${colsShift}
-                        <td rowspan="3"></td>
-                    </tr>
-                    <tr><td class="doc-text-bold doc-text-center bg-gray-100 text-[8px]">JUMLAH</td>${colsQty}</tr>
-                    <tr><td class="doc-text-bold doc-text-center bg-gray-100 text-[8px]">SISA</td>${colsSisa}</tr>
-                `;
+                return `<tr><td rowspan="3"></td><td rowspan="3"></td><td rowspan="3"></td><td rowspan="3"></td><td rowspan="3"></td>
+                        <td class="doc-text-bold doc-text-center bg-gray-100 text-[8px]">TGL/SHIFT</td>${colsShift}<td rowspan="3"></td></tr>
+                        <tr><td class="doc-text-bold doc-text-center bg-gray-100 text-[8px]">JUMLAH</td>${colsQty}</tr>
+                        <tr><td class="doc-text-bold doc-text-center bg-gray-100 text-[8px]">SISA</td>${colsSisa}</tr>`;
             }
-
-            return `
-                <tr>
-                    <td rowspan="3" class="doc-text-center">${formatTgl(batch.tglMasuk)}</td>
+            return `<tr><td rowspan="3" class="doc-text-center">${formatTgl(batch.tglMasuk)}</td>
                     <td rowspan="3" class="doc-text-center doc-text-bold text-[10px] bg-yellow-50/30">${batch.batch}</td>
                     <td rowspan="3" class="doc-text-center">${formatTgl(batch.tglExp)}</td>
                     <td rowspan="3" class="doc-text-center text-[8px] leading-tight">${batch.supplier}</td>
                     <td rowspan="3" class="doc-text-center doc-text-bold text-[11px] bg-green-50/30">${batch.jumlahAwal}</td>
                     <td class="doc-text-bold doc-text-center bg-gray-100 text-[8px]">TGL/SHIFT</td>${colsShift}
-                    <td rowspan="3" class="doc-text-left doc-align-top text-[8px] p-1">${batch.keterangan}</td>
-                </tr>
-                <tr><td class="doc-text-bold doc-text-center bg-gray-100 text-[8px]">JUMLAH</td>${colsQty}</tr>
-                <tr><td class="doc-text-bold doc-text-center bg-gray-100 text-[8px]">SISA</td>${colsSisa}</tr>
-            `;
+                    <td rowspan="3" class="doc-text-left doc-align-top text-[8px] p-1">${batch.keterangan}</td></tr>
+                    <tr><td class="doc-text-bold doc-text-center bg-gray-100 text-[8px]">JUMLAH</td>${colsQty}</tr>
+                    <tr><td class="doc-text-bold doc-text-center bg-gray-100 text-[8px]">SISA</td>${colsSisa}</tr>`;
         }
 
         function generateEmptyRows() {
             let emptyCols = ''; for(let j=0; j<8; j++) emptyCols += '<td></td>';
-            return `
-                <tr><td rowspan="3"></td><td rowspan="3"></td><td rowspan="3"></td><td rowspan="3"></td><td rowspan="3"></td>
-                <td class="doc-text-bold doc-text-center text-gray-500 bg-gray-50 text-[8px]">TGL/SHIFT</td>${emptyCols}<td rowspan="3"></td></tr>
-                <tr><td class="doc-text-bold doc-text-center text-gray-500 bg-gray-50 text-[8px]">JUMLAH</td>${emptyCols}</tr>
-                <tr><td class="doc-text-bold doc-text-center text-gray-500 bg-gray-50 text-[8px]">SISA</td>${emptyCols}</tr>
-            `;
+            return `<tr><td rowspan="3"></td><td rowspan="3"></td><td rowspan="3"></td><td rowspan="3"></td><td rowspan="3"></td>
+                    <td class="doc-text-bold doc-text-center text-gray-500 bg-gray-50 text-[8px]">TGL/SHIFT</td>${emptyCols}<td rowspan="3"></td></tr>
+                    <tr><td class="doc-text-bold doc-text-center text-gray-500 bg-gray-50 text-[8px]">JUMLAH</td>${emptyCols}</tr>
+                    <tr><td class="doc-text-bold doc-text-center text-gray-500 bg-gray-50 text-[8px]">SISA</td>${emptyCols}</tr>`;
         }
 
         function resetFormKedatangan() {
             document.getElementById('form-kedatangan').reset();
             document.getElementById('in-supplier-display').value = '';
             document.getElementById('in-supplier-value').value = '';
-            
             document.getElementById('in-material-display').value = '';
             document.getElementById('in-material-value').value = '';
             handleMaterialInChange('');
@@ -1440,9 +1386,8 @@
         }
 
         function switchTab(tabId) {
-            // Guard: Cegah Viewer masuk ke form In atau Out secara paksa
             if (currentUserRole.toLowerCase() === 'viewer' && (tabId === 'in' || tabId === 'out')) {
-                showToast('Akses Dibatasi', 'Mode Viewer hanya dapat melihat rekap dan mencetak kartu stok.', 'error');
+                showToast('Akses Dibatasi', 'Mode Viewer hanya dapat melihat rekap dan mencetak.', 'error');
                 return;
             }
 
@@ -1520,57 +1465,34 @@
             const loginBtn = document.getElementById('login-btn');
             
             loginBtn.disabled = true;
-            loginBtn.innerHTML = '<div class="w-5 h-5 border-2 border-white border-t-transparent rounded-full loader-spin mr-2"></div> Memeriksa...';
+            loginBtn.innerHTML = '<div class="w-5 h-5 border-2 border-white border-t-transparent rounded-full loader-spin mr-2"></div> Memvalidasi API...';
 
-            if (SCRIPT_URL && SCRIPT_URL.startsWith('http')) {
-                fetch(`${SCRIPT_URL}?action=verifyLogin&user=${encodeURIComponent(user)}&pass=${encodeURIComponent(pass)}`)
-                    .then(async res => {
-                        const text = await res.text();
-                        try {
-                            return JSON.parse(text);
-                        } catch (err) {
-                            throw new Error("HTML_RESPONSE"); 
-                        }
-                    })
-                    .then(response => {
-                        if (response.success) {
-                            processLoginSuccess(response.name, response.role);
-                        } else {
-                            loginBtn.disabled = false;
-                            loginBtn.innerHTML = 'Masuk Aplikasi';
-                            showLoginError(response.message || 'Username atau password salah!');
-                        }
-                    })
-                    .catch(e => {
+            if (!SCRIPT_URL || !SCRIPT_URL.startsWith('http')) {
+                loginBtn.disabled = false;
+                loginBtn.innerHTML = 'Masuk Aplikasi';
+                showLoginError('URL Web App Spreadsheet belum dikonfigurasi di dalam kode script!');
+                return;
+            }
+
+            fetch(`${SCRIPT_URL}?action=verifyLogin&user=${encodeURIComponent(user)}&pass=${encodeURIComponent(pass)}`)
+                .then(res => {
+                    if (!res.ok) throw new Error("Gagal menghubungi server");
+                    return res.json();
+                })
+                .then(response => {
+                    if (response.success) {
+                        processLoginSuccess(response.name, response.role);
+                    } else {
                         loginBtn.disabled = false;
                         loginBtn.innerHTML = 'Masuk Aplikasi';
-                        
-                        // Fallback login lokal (untuk demo tanpa koneksi API yang valid)
-                        if(user === 'admin' && pass === 'admin123') {
-                            processLoginSuccess('Administrator (Demo)', 'Admin');
-                        } else if (user === 'operator' && pass === 'op123') {
-                            processLoginSuccess('Operator (Demo)', 'User');
-                        } else if (user === 'viewer' && pass === 'view123') {
-                            processLoginSuccess('Viewer (Demo)', 'Viewer'); // Tambahan Role Viewer Demo
-                        } else {
-                            showLoginError('API Error! (Gunakan akun demo: admin, operator, atau viewer)');
-                        }
-                    });
-            } else {
-                setTimeout(() => {
+                        showLoginError(response.message || 'Username atau password salah!');
+                    }
+                })
+                .catch(e => {
                     loginBtn.disabled = false;
                     loginBtn.innerHTML = 'Masuk Aplikasi';
-                    if(user === 'admin' && pass === 'admin123') {
-                        processLoginSuccess('Administrator', 'Admin');
-                    } else if (user === 'operator' && pass === 'op123') {
-                        processLoginSuccess('Operator', 'User');
-                    } else if (user === 'viewer' && pass === 'view123') {
-                        processLoginSuccess('Viewer', 'Viewer'); // Tambahan Role Viewer
-                    } else {
-                        showLoginError('Akun salah! (Preview: pakai admin/admin123, viewer/view123)');
-                    }
-                }, 800);
-            }
+                    showLoginError('Gagal koneksi ke server. Pastikan internet Anda aktif.');
+                });
         }
 
         function showLoginError(msg) {
@@ -1578,23 +1500,21 @@
             errorMsg.innerHTML = `<i class="fas fa-exclamation-triangle mr-1"></i> ${msg}`;
             errorMsg.classList.remove('hidden');
             errorMsg.classList.add('animate-pulse');
-            setTimeout(() => { errorMsg.classList.add('hidden'); errorMsg.classList.remove('animate-pulse'); }, 4000);
+            setTimeout(() => { errorMsg.classList.add('hidden'); errorMsg.classList.remove('animate-pulse'); }, 5000);
         }
 
-        // Logic memproses UI berdasarkan Role saat berhasil masuk
         function processLoginSuccess(name, role) {
-            currentUserRole = role || 'User'; // Simpan role ke variabel global
+            currentUserRole = role || 'User'; 
             
             document.getElementById('login-overlay').style.opacity = '0';
             document.getElementById('header-user-info').textContent = `${name}`;
             
-            // Konfigurasi Visibilitas Tab berdasarkan Role (RBAC)
             const tabIn = document.getElementById('tab-btn-in');
             const tabOut = document.getElementById('tab-btn-out');
             
             if (currentUserRole.toLowerCase() === 'viewer') {
-                tabIn.style.display = 'none'; // Sembunyikan tab kedatangan
-                tabOut.style.display = 'none'; // Sembunyikan tab pengambilan
+                tabIn.style.display = 'none'; 
+                tabOut.style.display = 'none'; 
             } else {
                 tabIn.style.display = 'flex';
                 tabOut.style.display = 'flex';
@@ -1605,7 +1525,6 @@
                 document.getElementById('main-app').classList.remove('hidden');
                 document.getElementById('main-app').classList.add('flex');
                 
-                // Menentukan tab default setelah login berdasarkan role
                 if (currentUserRole.toLowerCase() === 'viewer') {
                     switchTab('rekap');
                 } else {
@@ -1620,7 +1539,7 @@
             document.getElementById('main-app').classList.add('hidden');
             document.getElementById('main-app').classList.remove('flex');
             document.getElementById('login-form').reset();
-            currentUserRole = 'User'; // reset ke default saat keluar
+            currentUserRole = 'User'; 
             
             const overlay = document.getElementById('login-overlay');
             overlay.style.display = 'flex';
@@ -1634,20 +1553,6 @@
             document.getElementById('out-tgl').value = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
             
             fetchDataFromServer(false);
-        }
-
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                if (window.location.protocol === 'https:' || window.location.protocol === 'http:') {
-                    navigator.serviceWorker.register('./sw.js')
-                        .then(registration => {
-                            console.log('ServiceWorker registered');
-                        })
-                        .catch(error => {
-                            console.error('ServiceWorker error:', error);
-                        });
-                }
-            });
         }
     </script>
 </body>
